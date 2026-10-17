@@ -1,6 +1,7 @@
 /// Central definition of all route paths.
 abstract class AppRoutes {
   static const initial = '/';
+  static const roleSelect = '/role-select';
   static const login = '/login';
   static const main = '/main';
   static const matchDetail = '/match-detail';

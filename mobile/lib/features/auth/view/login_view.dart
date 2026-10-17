@@ -5,23 +5,17 @@ import '../../../core/strings/app_strings.dart';
 import '../../../core/theme/theme_ext.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../controller/auth_controller.dart';
 
-/// Dumb layout view for Login screen adhering to UX rules C7, C8, and C9.
+/// Screen 2 of Authentication: Focused credential entry and authentication.
+/// Opened after selecting a role or choosing custom credentials.
 class LoginView extends GetView<AuthController> {
   const LoginView({super.key});
-
-  static const _demoAccounts = [
-    (roleKey: AppStrings.roleOrganizer, email: 'organizer@nascon.test', desc: 'League operations & scoring control'),
-    (roleKey: AppStrings.roleManager, email: 'manager@nascon.test', desc: 'Club & player roster management'),
-    (roleKey: AppStrings.roleAdmin, email: 'admin@nascon.test', desc: 'Platform super-admin access'),
-    (roleKey: AppStrings.rolePlayer, email: 'player@nascon.test', desc: 'Player profile & squad viewer'),
-    (roleKey: AppStrings.roleViewer, email: 'viewer@nascon.test', desc: 'Spectator & public match fan'),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -29,215 +23,165 @@ class LoginView extends GetView<AuthController> {
     final sizes = context.sizes;
     final textStyles = context.text;
 
-    return AppScaffold(
-      showSyncIndicator: false,
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const LoadingOverlay.staged(
-            labelKey: AppStrings.commonLoading,
-          );
-        }
+    return Obx(() {
+      final selectedRole = controller.selectedRole.value;
 
-        return Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: sizes.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header Block
-                Center(
-                  child: Container(
-                    width: sizes.listRowMin,
-                    height: sizes.listRowMin,
-                    decoration: BoxDecoration(
-                      color: colors.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.sports_soccer_outlined,
-                      size: sizes.iconLg,
-                      color: colors.primary,
-                    ),
-                  ),
-                ),
-                SizedBox(height: sizes.md),
-                Text(
-                  AppStrings.loginTitle.tr,
-                  style: textStyles.headlineLg,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: sizes.xs),
-                Text(
-                  AppStrings.loginSubtitle.tr,
-                  style: textStyles.bodyMd.copyWith(color: colors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: sizes.xl),
-
-                // Rule C8: Quick Demo Accounts (Tap to Sign In Immediately)
-                Text(
-                  AppStrings.loginQuickAccounts.tr,
-                  style: textStyles.titleMd,
-                ),
-                SizedBox(height: sizes.xs),
-                Text(
-                  AppStrings.loginDemoSection.tr,
-                  style: textStyles.caption.copyWith(color: colors.textSecondary),
-                ),
-                SizedBox(height: sizes.md),
-
-                // Demo Accounts in a single card with dividers (Rule C4)
-                AppCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      for (int i = 0; i < _demoAccounts.length; i++) ...[
-                        InkWell(
-                          onTap: () => controller.signInWithDemo(
-                            _demoAccounts[i].email,
-                            'Nascon@26',
-                          ),
-                          borderRadius: i == 0
-                              ? BorderRadius.vertical(top: Radius.circular(sizes.radiusLg))
-                              : i == _demoAccounts.length - 1
-                                  ? BorderRadius.vertical(bottom: Radius.circular(sizes.radiusLg))
-                                  : BorderRadius.zero,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: sizes.cardPadding,
-                              vertical: sizes.md,
+      return AppScaffold(
+        showSyncIndicator: false,
+        titleKey: AppStrings.loginTitle,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_outlined, size: sizes.iconMd, color: colors.textPrimary),
+          onPressed: controller.changeRole,
+        ),
+        body: controller.isLoading.value
+            ? const LoadingOverlay.staged(labelKey: AppStrings.commonLoading)
+            : SingleChildScrollView(
+                padding: EdgeInsets.symmetric(vertical: sizes.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Role Context Banner (if entered from role selection)
+                    if (selectedRole != null) ...[
+                      AppCard(
+                        padding: EdgeInsets.all(sizes.md),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: colors.primaryContainer,
+                                borderRadius: BorderRadius.circular(sizes.radiusSm),
+                              ),
+                              child: Icon(
+                                selectedRole.icon,
+                                size: sizes.iconMd,
+                                color: colors.primary,
+                              ),
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: colors.surfaceVariant,
-                                    borderRadius: BorderRadius.circular(sizes.radiusSm),
-                                  ),
-                                  child: Icon(
-                                    Icons.badge_outlined,
-                                    size: sizes.iconSm,
-                                    color: colors.primary,
-                                  ),
-                                ),
-                                SizedBox(width: sizes.md),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                            SizedBox(width: sizes.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Wrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    spacing: sizes.xs,
+                                    runSpacing: sizes.xxs,
                                     children: [
                                       Text(
-                                        _demoAccounts[i].roleKey.tr,
-                                        style: textStyles.labelLg.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        selectedRole.title,
+                                        style: textStyles.titleMd.copyWith(fontWeight: FontWeight.w600),
                                       ),
-                                      Text(
-                                        _demoAccounts[i].email,
-                                        style: textStyles.bodySm.copyWith(
-                                          color: colors.textSecondary,
-                                        ),
+                                      AppStatusChip(
+                                        label: selectedRole.tenantTag,
+                                        tone: selectedRole.tone,
                                       ),
                                     ],
                                   ),
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_outlined,
-                                  size: sizes.iconSm,
-                                  color: colors.textTertiary,
-                                ),
-                              ],
+                                  SizedBox(height: sizes.xxs),
+                                  Text(
+                                    selectedRole.description,
+                                    style: textStyles.caption,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            TextButton(
+                              onPressed: controller.changeRole,
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.symmetric(horizontal: sizes.sm),
+                                foregroundColor: colors.primary,
+                              ),
+                              child: Text(
+                                AppStrings.roleChange.tr,
+                                style: textStyles.labelMd.copyWith(color: colors.primary),
+                              ),
+                            ),
+                          ],
                         ),
-                        if (i < _demoAccounts.length - 1)
-                          Divider(height: 1, color: colors.border),
-                      ],
+                      ),
+                      SizedBox(height: sizes.lg),
                     ],
-                  ),
-                ),
 
-                SizedBox(height: sizes.xl),
+                    // Credentials Input Card
+                    AppCard(
+                      padding: EdgeInsets.all(sizes.cardPadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'Account Credentials',
+                            style: textStyles.titleMd,
+                          ),
+                          SizedBox(height: sizes.xxs),
+                          Text(
+                            selectedRole != null
+                                ? 'Credentials for this role have been verified and pre-filled below:'
+                                : 'Enter your registered credentials to sign in:',
+                            style: textStyles.caption,
+                          ),
+                          SizedBox(height: sizes.lg),
 
-                // Rule C8: Subtle divider
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: colors.border)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: sizes.md),
-                      child: Text(
-                        AppStrings.loginOrCredentials.tr,
-                        style: textStyles.caption.copyWith(color: colors.textTertiary),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: colors.border)),
-                  ],
-                ),
-
-                SizedBox(height: sizes.xl),
-
-                // Form Container with AppTextField (Rule D4)
-                AppCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AppTextField(
-                        controller: controller.emailController,
-                        label: AppStrings.loginEmailLabel.tr,
-                        hintText: 'name@nascon.test',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          size: sizes.iconSm,
-                          color: colors.textTertiary,
-                        ),
-                      ),
-                      SizedBox(height: sizes.md),
-                      Obx(() => AppTextField(
-                            controller: controller.passwordController,
-                            label: AppStrings.loginPasswordLabel.tr,
-                            hintText: '••••••••',
-                            obscureText: controller.obscurePassword.value,
+                          AppTextField(
+                            controller: controller.emailController,
+                            label: AppStrings.loginEmailLabel.tr,
+                            hintText: 'name@nascon.test',
+                            keyboardType: TextInputType.emailAddress,
                             prefixIcon: Icon(
-                              Icons.lock_outline,
+                              Icons.email_outlined,
                               size: sizes.iconSm,
                               color: colors.textTertiary,
                             ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                controller.obscurePassword.value
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                size: sizes.iconSm,
-                                color: colors.textSecondary,
-                              ),
-                              onPressed: controller.toggleObscurePassword,
-                            ),
-                          )),
-                      SizedBox(height: sizes.xl),
-                      PrimaryButton(
-                        labelKey: AppStrings.loginButton,
-                        onPressed: controller.submitLogin,
-                        icon: Icons.login_outlined,
+                          ),
+                          SizedBox(height: sizes.md),
+
+                          Obx(() => AppTextField(
+                                controller: controller.passwordController,
+                                label: AppStrings.loginPasswordLabel.tr,
+                                hintText: '••••••••',
+                                obscureText: controller.obscurePassword.value,
+                                prefixIcon: Icon(
+                                  Icons.lock_outline,
+                                  size: sizes.iconSm,
+                                  color: colors.textTertiary,
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    controller.obscurePassword.value
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    size: sizes.iconSm,
+                                    color: colors.textSecondary,
+                                  ),
+                                  onPressed: controller.toggleObscurePassword,
+                                ),
+                              )),
+                          SizedBox(height: sizes.xl),
+
+                          PrimaryButton(
+                            labelKey: AppStrings.loginButton,
+                            onPressed: controller.submitLogin,
+                            icon: Icons.login_outlined,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    if (controller.hasError.value) ...[
+                      SizedBox(height: sizes.lg),
+                      ErrorView(
+                        messageKey: controller.errorMessageKey.value,
+                        actionLabelKey: AppStrings.commonRetry,
+                        onRetry: controller.submitLogin,
                       ),
                     ],
-                  ),
+                  ],
                 ),
-
-                if (controller.hasError.value) ...[
-                  SizedBox(height: sizes.xl),
-                  ErrorView(
-                    messageKey: controller.errorMessageKey.value,
-                    actionLabelKey: AppStrings.commonRetry,
-                    onRetry: controller.submitLogin,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      }),
-    );
+              ),
+      );
+    });
   }
 }

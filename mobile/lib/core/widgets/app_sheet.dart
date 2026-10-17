@@ -19,13 +19,15 @@ abstract final class AppSheet {
 
     return showModalBottomSheet<T>(
       context: context,
+      useRootNavigator: true,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: colors.scrim,
       builder: (bottomSheetContext) {
-        return Center(
+        return Align(
+          alignment: Alignment.bottomCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: sizes.contentMaxWidth,

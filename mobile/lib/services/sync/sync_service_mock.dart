@@ -101,11 +101,22 @@ class SyncServiceMock implements SyncService {
     _pendingCount.value = _actions.where((a) => a.isPending).length;
   }
 
-  void _initConnectivity() {
-    // Initial check
-    Connectivity().checkConnectivity().then(_handleConnectivityChange);
-    // Realtime changes
-    _connectivitySub = Connectivity().onConnectivityChanged.listen(_handleConnectivityChange);
+  Future<void> _initConnectivity() async {
+    try {
+      // Probe connectivity first; if platform channel is missing, this throws into catch
+      final initial = await Connectivity().checkConnectivity();
+      _handleConnectivityChange(initial);
+
+      // Only attach stream listener if native plugin is present
+      _connectivitySub = Connectivity().onConnectivityChanged.listen(
+        _handleConnectivityChange,
+        onError: (_) {},
+        cancelOnError: false,
+      );
+    } catch (_) {
+      // Native plugin not compiled into currently running binary (hot restart fallback)
+      _isOnline.value = true;
+    }
   }
 
   void _handleConnectivityChange(List<ConnectivityResult> results) {
@@ -129,7 +140,13 @@ class SyncServiceMock implements SyncService {
     if (_manualOfflineSimulation) {
       _isOnline.value = false;
     } else {
-      Connectivity().checkConnectivity().then(_handleConnectivityChange);
+      _isOnline.value = true;
+      try {
+        Connectivity()
+            .checkConnectivity()
+            .then(_handleConnectivityChange)
+            .catchError((_) {});
+      } catch (_) {}
     }
   }
 

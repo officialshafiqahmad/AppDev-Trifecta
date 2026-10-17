@@ -46,6 +46,6 @@ class ProfileController extends GetxController {
 
   Future<void> logout() async {
     await authService.logout();
-    Get.offAllNamed(AppRoutes.login);
+    Get.offAllNamed(AppRoutes.roleSelect);
   }
 }

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../features/auth/binding/auth_binding.dart';
 import '../../features/auth/view/login_view.dart';
+import '../../features/auth/view/role_select_view.dart';
 import '../../features/club_profile/binding/club_profile_binding.dart';
 import '../../features/club_profile/view/club_profile_view.dart';
 import '../../features/main_nav/binding/main_nav_binding.dart';
@@ -26,14 +27,21 @@ import 'role_guard.dart';
 abstract final class AppPages {
   static const AppSizes _sizes = AppSizes();
 
-  static const String initial = AppRoutes.login;
+  static const String initial = AppRoutes.roleSelect;
 
   static final List<GetPage<dynamic>> pages = [
+    GetPage<dynamic>(
+      name: AppRoutes.roleSelect,
+      page: () => const RoleSelectView(),
+      binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: _sizes.motionFast,
+    ),
     GetPage<dynamic>(
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: AuthBinding(),
-      transition: Transition.fadeIn,
+      transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionFast,
     ),
     GetPage<dynamic>(

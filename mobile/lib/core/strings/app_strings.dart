@@ -55,6 +55,11 @@ abstract final class AppStrings {
   static const loginOrCredentials = 'login_or_credentials';
   static const loginInvalidCreds = 'login_invalid_creds';
   static const logoutButton = 'logout_button';
+  static const roleSelectTitle = 'role_select_title';
+  static const roleSelectSubtitle = 'role_select_subtitle';
+  static const roleSelectCustom = 'role_select_custom';
+  static const roleChange = 'role_change';
+  static const roleSelected = 'role_selected';
 
   // Roles
   static const roleAdmin = 'role_admin';
@@ -268,6 +273,11 @@ class AppTranslations extends Translations {
           AppStrings.loginOrCredentials: 'or sign in with credentials',
           AppStrings.loginInvalidCreds: 'Invalid email or password. Please use a demo account.',
           AppStrings.logoutButton: 'Sign Out',
+          AppStrings.roleSelectTitle: 'Select Your Role',
+          AppStrings.roleSelectSubtitle: 'Choose your operational role to access your workspace',
+          AppStrings.roleSelectCustom: 'Sign In with Custom Email',
+          AppStrings.roleChange: 'Switch Role',
+          AppStrings.roleSelected: 'Active Role',
 
           // Roles
           AppStrings.roleAdmin: 'Platform Super-Admin',

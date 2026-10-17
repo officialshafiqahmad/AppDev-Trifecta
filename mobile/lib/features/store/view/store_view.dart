@@ -6,7 +6,6 @@ import '../../../core/theme/theme_ext.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../../core/widgets/section_header.dart';
 import '../controller/store_controller.dart';
 import '../widgets/product_card.dart';
 
@@ -50,13 +49,6 @@ class StoreView extends GetView<StoreController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SectionHeader(
-                    titleKey: AppStrings.storeTitle,
-                    actionLabelKey: hasCart ? '${controller.cartItems.length} in cart' : null,
-                    onAction: hasCart ? controller.openCart : null,
-                  ),
-                  SizedBox(height: sizes.md),
-
                   if (items.isEmpty)
                     const EmptyView(
                       messageKey: AppStrings.storeEmpty,

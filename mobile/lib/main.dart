@@ -16,7 +16,7 @@ void main() async {
 
   // Rule G7: Restore session from storage on cold start
   final authService = AuthServiceImpl();
-  String initialRoute = AppRoutes.login;
+  String initialRoute = AppPages.initial;
   try {
     final isAuthRes = await authService.isAuthenticated();
     if (isAuthRes.isSuccess && isAuthRes.dataOrNull == true) {
@@ -39,7 +39,7 @@ class TrifectaApp extends StatelessWidget {
   const TrifectaApp({
     super.key,
     required this.config,
-    this.initialRoute = AppRoutes.login,
+    this.initialRoute = AppPages.initial,
     this.preloadedAuth,
   });
 
