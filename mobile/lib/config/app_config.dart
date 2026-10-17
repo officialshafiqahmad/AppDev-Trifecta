@@ -7,31 +7,49 @@ class AppConfig {
     required this.environment,
     required this.connectTimeoutMs,
     required this.receiveTimeoutMs,
+    this.useRealApi = const {
+      'standings': false,
+      'matchRead': false,
+      'matchWrite': false,
+      'store': false,
+      'roster': false,
+      'sync': false,
+      'auth': false,
+    },
   });
 
   /// Factory constructor to populate configuration from environment variables.
-  factory AppConfig.fromEnvironment() {
-    return const AppConfig(
-      apiBaseUrl: String.fromEnvironment(
+  factory AppConfig.fromEnvironment({Map<String, bool>? useRealApi}) {
+    return AppConfig(
+      apiBaseUrl: const String.fromEnvironment(
         'API_BASE_URL',
-        defaultValue: 'http://10.0.2.2:8080', // Android emulator default to host (WITHOUT /api)
+        defaultValue: 'https://astjq-203-99-61-238.free.pinggy.net',
       ),
-      appName: String.fromEnvironment(
+      appName: const String.fromEnvironment(
         'APP_NAME',
         defaultValue: 'Trifecta',
       ),
-      environment: String.fromEnvironment(
+      environment: const String.fromEnvironment(
         'APP_ENV',
         defaultValue: 'development',
       ),
-      connectTimeoutMs: int.fromEnvironment(
+      connectTimeoutMs: const int.fromEnvironment(
         'CONNECT_TIMEOUT_MS',
         defaultValue: 10000,
       ),
-      receiveTimeoutMs: int.fromEnvironment(
+      receiveTimeoutMs: const int.fromEnvironment(
         'RECEIVE_TIMEOUT_MS',
         defaultValue: 15000,
       ),
+      useRealApi: useRealApi ?? const {
+        'standings': false,
+        'matchRead': false,
+        'matchWrite': false,
+        'store': false,
+        'roster': false,
+        'sync': false,
+        'auth': false,
+      },
     );
   }
 
@@ -40,7 +58,10 @@ class AppConfig {
   final String environment;
   final int connectTimeoutMs;
   final int receiveTimeoutMs;
+  final Map<String, bool> useRealApi;
 
   bool get isDevelopment => environment == 'development';
   bool get isProduction => environment == 'production';
+
+  bool isRealApiEnabled(String serviceKey) => useRealApi[serviceKey] ?? false;
 }

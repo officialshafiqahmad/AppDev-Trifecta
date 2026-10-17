@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 
 import '../../config/app_config.dart';
+import '../../services/api/api_service.dart';
+import '../../services/api/api_service_impl.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/auth/auth_service_impl.dart';
 import '../../services/cache/cache_service.dart';
@@ -43,6 +45,9 @@ class InitialBinding extends Bindings {
 
     final settings = SettingsServiceImpl(storageService: storage);
     Get.put<SettingsService>(settings, permanent: true);
+
+    final api = ApiServiceImpl(settingsService: settings);
+    Get.put<ApiService>(api, permanent: true);
 
     final sync = SyncServiceMock(cacheService: cache, settingsService: settings);
     Get.put<SyncService>(sync, permanent: true);
