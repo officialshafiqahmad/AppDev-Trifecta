@@ -5,6 +5,7 @@ const { validateReset, applyReset } = require('./baseline');
 const { databaseReady } = require('./db');
 const { validateLeague, createLeague } = require('./leagues');
 const { appendEvent, getScore } = require('./scoring');
+const { getStandings } = require('./standings');
 const { checkout, getInventory } = require('./store');
 const { mountRbac } = require('./rbac');
 const { rateLimitApi } = require('./ratelimit');
@@ -143,6 +144,19 @@ function createApp(pool) {
   app.get('/audit/v1/inventory/:variant_id', async (req, res, next) => {
     try {
       const result = await getInventory(pool, req.params.variant_id);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/standings/:league_id', async (req, res, next) => {
+    try {
+      const result = await getStandings(pool, req.params.league_id);
       if (result.error) {
         sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
         return;
