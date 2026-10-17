@@ -4,7 +4,7 @@ import '../cache/cache_service.dart';
 import '../sync/sync_service.dart';
 import 'match_service.dart';
 
-/// Mock MatchService with offline-sync queueing and live score simulation.
+/// Mock MatchService with offline-sync queueing, canonical world, and live score updates.
 class MatchServiceMock implements MatchService {
   MatchServiceMock({
     required this.cacheService,
@@ -15,65 +15,161 @@ class MatchServiceMock implements MatchService {
   final SyncService syncService;
 
   static final Map<String, ScoreProjection> _liveStore = {
-    'm-alpha-1': ScoreProjection(
-      matchId: 'm-alpha-1',
+    // Completed match: Lahore FC 2 - 1 Karachi City (Rule G14)
+    'match-alpha-1': const ScoreProjection(
+      matchId: 'match-alpha-1',
       sportId: 'football',
       leagueId: 'league-alpha-1',
-      status: 'in_progress',
-      outcome: 'pending',
-      home: const TeamScore(
+      status: 'completed',
+      outcome: 'home_win',
+      winnerTeamId: 'club-alpha-1',
+      home: TeamScore(
         teamId: 'club-alpha-1',
-        teamName: 'Alpha FC',
+        teamName: 'Lahore FC',
         score: 2,
       ),
-      away: const TeamScore(
+      away: TeamScore(
         teamId: 'club-alpha-2',
-        teamName: 'Alpha United',
+        teamName: 'Karachi City',
         score: 1,
       ),
       version: 4,
       events: [
         MatchEvent(
           sequence: 1,
-          eventId: 'evt-init-1',
-          type: 'match_init',
+          eventId: 'evt-alpha-1-1',
+          type: 'match_start',
           payload: {'period': 'first_half'},
           signature: 'sig-mock-1',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 42)),
         ),
         MatchEvent(
           sequence: 2,
-          eventId: 'evt-score-1',
+          eventId: 'evt-alpha-1-2',
           type: 'score',
-          payload: {'team_id': 'club-alpha-1', 'event_type': 'goal', 'player': 'Tariq Al-Mansoor (24\')'},
+          payload: {
+            'team_id': 'club-alpha-1',
+            'team_name': 'Lahore FC',
+            'event_type': 'goal',
+            'minute': 14,
+            'player': 'Marcus Rashford',
+          },
           signature: 'sig-mock-2',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
         ),
         MatchEvent(
           sequence: 3,
-          eventId: 'evt-score-2',
+          eventId: 'evt-alpha-1-3',
           type: 'score',
-          payload: {'team_id': 'club-alpha-2', 'event_type': 'goal', 'player': 'Kareem Vance (38\')'},
+          payload: {
+            'team_id': 'club-alpha-2',
+            'team_name': 'Karachi City',
+            'event_type': 'goal',
+            'minute': 38,
+            'player': 'Bruno Fernandes',
+          },
           signature: 'sig-mock-3',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 8)),
         ),
         MatchEvent(
           sequence: 4,
-          eventId: 'evt-score-3',
+          eventId: 'evt-alpha-1-4',
           type: 'score',
-          payload: {'team_id': 'club-alpha-1', 'event_type': 'goal', 'player': 'Tariq Al-Mansoor (41\')'},
+          payload: {
+            'team_id': 'club-alpha-1',
+            'team_name': 'Lahore FC',
+            'event_type': 'goal',
+            'minute': 72,
+            'player': 'Rasmus Hojlund',
+          },
           signature: 'sig-mock-4',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
         ),
       ],
+    ),
+    // Live match: Islamabad United 1 - 0 Peshawar Stars (Rule G14)
+    'match-alpha-2': const ScoreProjection(
+      matchId: 'match-alpha-2',
+      sportId: 'football',
+      leagueId: 'league-alpha-1',
+      status: 'in_progress',
+      outcome: 'pending',
+      home: TeamScore(
+        teamId: 'club-alpha-3',
+        teamName: 'Islamabad United',
+        score: 1,
+      ),
+      away: TeamScore(
+        teamId: 'club-alpha-4',
+        teamName: 'Peshawar Stars',
+        score: 0,
+      ),
+      version: 2,
+      events: [
+        MatchEvent(
+          sequence: 1,
+          eventId: 'evt-alpha-2-1',
+          type: 'match_start',
+          payload: {'period': 'first_half'},
+          signature: 'sig-live-1',
+        ),
+        MatchEvent(
+          sequence: 2,
+          eventId: 'evt-alpha-2-2',
+          type: 'score',
+          payload: {
+            'team_id': 'club-alpha-3',
+            'team_name': 'Islamabad United',
+            'event_type': 'goal',
+            'minute': 23,
+            'player': 'Alejandro Garnacho',
+          },
+          signature: 'sig-live-2',
+        ),
+      ],
+    ),
+    // Upcoming match 1 (Rule G14: empty events, null scores)
+    'match-alpha-3': const ScoreProjection(
+      matchId: 'match-alpha-3',
+      sportId: 'football',
+      leagueId: 'league-alpha-1',
+      status: 'upcoming',
+      outcome: 'pending',
+      home: TeamScore(
+        teamId: 'club-alpha-1',
+        teamName: 'Lahore FC',
+        score: 0,
+      ),
+      away: TeamScore(
+        teamId: 'club-alpha-3',
+        teamName: 'Islamabad United',
+        score: 0,
+      ),
+      version: 1,
+      events: [],
+    ),
+    // Upcoming match 2 (Rule G14: empty events, null scores)
+    'match-alpha-4': const ScoreProjection(
+      matchId: 'match-alpha-4',
+      sportId: 'football',
+      leagueId: 'league-alpha-1',
+      status: 'upcoming',
+      outcome: 'pending',
+      home: TeamScore(
+        teamId: 'club-alpha-2',
+        teamName: 'Karachi City',
+        score: 0,
+      ),
+      away: TeamScore(
+        teamId: 'club-alpha-4',
+        teamName: 'Peshawar Stars',
+        score: 0,
+      ),
+      version: 1,
+      events: [],
     ),
   };
 
   @override
   Future<Result<ScoreProjection>> getScoreProjection(String matchId) async {
-    final cacheKey = 'cache_match_projection_$matchId';
+    final cacheKey = 'cache_match_projection_v2_$matchId';
 
-    // Try cache if exists
     final cachedRes = await cacheService.get(cacheKey);
     final cached = cachedRes.dataOrNull;
     if (cached != null) {
@@ -88,8 +184,8 @@ class MatchServiceMock implements MatchService {
           sportId: 'football',
           status: 'upcoming',
           outcome: 'pending',
-          home: const TeamScore(teamId: 'club-alpha-1', teamName: 'Alpha FC', score: 0),
-          away: const TeamScore(teamId: 'club-beta-1', teamName: 'Beta Titans', score: 0),
+          home: const TeamScore(teamId: 'club-alpha-1', teamName: 'Lahore FC', score: 0),
+          away: const TeamScore(teamId: 'club-alpha-2', teamName: 'Karachi City', score: 0),
           version: 1,
           events: const [],
         );
@@ -105,6 +201,17 @@ class MatchServiceMock implements MatchService {
     required Map<String, dynamic> payload,
   }) async {
     final proj = _liveStore[matchId] ?? (await getScoreProjection(matchId)).dataOrNull!;
+
+    // Rule G13: refuse score on match that is not in progress
+    if (proj.status != 'in_progress') {
+      return const Failure(
+        AppFailure(
+          code: 'MATCH_NOT_IN_PROGRESS',
+          userMessageKey: AppStrings.errMatchNotInProgress,
+        ),
+      );
+    }
+
     final newVersion = proj.version + 1;
     final eventId = 'evt-${DateTime.now().millisecondsSinceEpoch}';
 
@@ -114,10 +221,8 @@ class MatchServiceMock implements MatchService {
       type: type,
       payload: payload,
       signature: 'sig-$eventId',
-      timestamp: DateTime.now(),
     );
 
-    // If offline, queue in sync service!
     if (!syncService.isOnline) {
       await syncService.queueAction(
         type: 'score_event',
@@ -131,7 +236,6 @@ class MatchServiceMock implements MatchService {
       );
     }
 
-    // Update in-memory state
     int homeDelta = 0;
     int awayDelta = 0;
     if (type == 'score') {
@@ -159,7 +263,7 @@ class MatchServiceMock implements MatchService {
     );
 
     _liveStore[matchId] = updatedProj;
-    await cacheService.put('cache_match_projection_$matchId', updatedProj.toJson());
+    await cacheService.put('cache_match_projection_v2_$matchId', updatedProj.toJson());
 
     return Success(event);
   }
@@ -171,6 +275,16 @@ class MatchServiceMock implements MatchService {
     required String reason,
   }) async {
     final proj = _liveStore[matchId] ?? (await getScoreProjection(matchId)).dataOrNull!;
+
+    if (proj.status != 'in_progress') {
+      return const Failure(
+        AppFailure(
+          code: 'MATCH_NOT_IN_PROGRESS',
+          userMessageKey: AppStrings.errMatchNotInProgress,
+        ),
+      );
+    }
+
     final targetIndex = proj.events.indexWhere((e) => e.eventId == targetEventId);
 
     if (targetIndex == -1) {
@@ -198,7 +312,6 @@ class MatchServiceMock implements MatchService {
         'reason': reason,
       },
       signature: 'sig-$compensationId',
-      timestamp: DateTime.now(),
     );
 
     if (!syncService.isOnline) {
@@ -214,7 +327,6 @@ class MatchServiceMock implements MatchService {
       );
     }
 
-    // Offset score if it was a score event
     int homeDelta = 0;
     int awayDelta = 0;
     if (target.type == 'score') {
@@ -226,7 +338,6 @@ class MatchServiceMock implements MatchService {
       }
     }
 
-    // Mark original compensated
     final updatedEvents = List<MatchEvent>.from(proj.events);
     updatedEvents[targetIndex] = MatchEvent(
       sequence: target.sequence,
@@ -236,7 +347,6 @@ class MatchServiceMock implements MatchService {
       signature: target.signature,
       compensated: true,
       compensatedBy: compensationId,
-      timestamp: target.timestamp,
     );
     updatedEvents.add(compEvent);
 
@@ -256,7 +366,7 @@ class MatchServiceMock implements MatchService {
     );
 
     _liveStore[matchId] = updatedProj;
-    await cacheService.put('cache_match_projection_$matchId', updatedProj.toJson());
+    await cacheService.put('cache_match_projection_v2_$matchId', updatedProj.toJson());
 
     return Success(compEvent);
   }

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../services/club/club_service.dart';
 import '../../../services/match/match_service.dart';
 import '../../../services/sync/sync_service.dart';
 import '../controller/scoring_entry_controller.dart';
@@ -12,6 +13,7 @@ class ScoringEntryBinding extends Bindings {
       () => ScoringEntryController(
         matchService: Get.find<MatchService>(),
         syncService: Get.find<SyncService>(),
+        clubService: Get.find<ClubService>(),
       ),
     );
   }

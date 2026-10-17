@@ -14,6 +14,7 @@ class SecondaryButton extends StatelessWidget {
     this.icon,
     this.height,
     this.isFullWidth = true,
+    this.isLoading = false,
   });
 
   final String labelKey;
@@ -21,6 +22,7 @@ class SecondaryButton extends StatelessWidget {
   final IconData? icon;
   final double? height;
   final bool isFullWidth;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class SecondaryButton extends StatelessWidget {
     final sizes = context.sizes;
     final textStyles = context.text;
 
-    final isDisabled = onPressed == null;
+    final isDisabled = onPressed == null || isLoading;
     final buttonHeight = height ?? sizes.buttonSecondary;
 
     return PressableScale(
@@ -37,7 +39,7 @@ class SecondaryButton extends StatelessWidget {
         height: buttonHeight,
         width: isFullWidth ? double.infinity : null,
         child: OutlinedButton(
-          onPressed: onPressed,
+          onPressed: isDisabled ? null : onPressed,
           style: OutlinedButton.styleFrom(
             foregroundColor: colors.primary,
             disabledForegroundColor: colors.textTertiary,
@@ -49,26 +51,35 @@ class SecondaryButton extends StatelessWidget {
             ),
             padding: EdgeInsets.symmetric(horizontal: sizes.lg),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: sizes.iconSm,
-                  color: isDisabled ? colors.textTertiary : colors.primary,
+          child: isLoading
+              ? SizedBox(
+                  width: sizes.iconSm,
+                  height: sizes.iconSm,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colors.primary,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(
+                        icon,
+                        size: sizes.iconSm,
+                        color: isDisabled ? colors.textTertiary : colors.primary,
+                      ),
+                      SizedBox(width: sizes.sm),
+                    ],
+                    Text(
+                      labelKey.tr,
+                      style: textStyles.labelLg.copyWith(
+                        color: isDisabled ? colors.textTertiary : colors.primary,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: sizes.sm),
-              ],
-              Text(
-                labelKey.tr,
-                style: textStyles.labelLg.copyWith(
-                  color: isDisabled ? colors.textTertiary : colors.primary,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

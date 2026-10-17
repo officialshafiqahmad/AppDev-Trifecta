@@ -1,18 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/strings/app_strings.dart';
 import '../../../core/theme/theme_ext.dart';
+import '../../../core/widgets/app_segmented_control.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../../core/widgets/pressable_scale.dart';
+import '../../../core/widgets/section_header.dart';
+import '../../../services/fixtures/fixtures_service.dart';
 import '../controller/fixtures_controller.dart';
 import '../widgets/match_card.dart';
 
-/// Dumb layout view for Fixtures screen.
+/// Dumb layout view for Fixtures screen adhering to UX rules C5, C10, and C11.
 class FixturesView extends GetView<FixturesController> {
   const FixturesView({super.key});
+
+  String _formatDateHeader(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(date.year, date.month, date.day);
+
+    final diff = target.difference(today).inDays;
+    if (diff == 0) return 'Today';
+    if (diff == -1) return 'Yesterday';
+    if (diff == 1) return 'Tomorrow';
+    return DateFormat('EEEE, d MMMM').format(date);
+  }
+
+  Map<String, List<MatchSummary>> _groupMatches(List<MatchSummary> matches) {
+    final Map<String, List<MatchSummary>> groups = {};
+    for (final match in matches) {
+      final key = _formatDateHeader(match.startsAt);
+      groups.putIfAbsent(key, () => []).add(match);
+    }
+    return groups;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +57,7 @@ class FixturesView extends GetView<FixturesController> {
       }
 
       final matches = controller.filteredMatches;
+      final grouped = _groupMatches(matches);
 
       return RefreshIndicator(
         onRefresh: controller.loadFixtures,
@@ -42,20 +67,16 @@ class FixturesView extends GetView<FixturesController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Filters Row
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip(context, 'all', AppStrings.fixturesFilterAll),
-                    SizedBox(width: sizes.sm),
-                    _buildFilterChip(context, 'live', AppStrings.fixturesFilterLive),
-                    SizedBox(width: sizes.sm),
-                    _buildFilterChip(context, 'upcoming', AppStrings.fixturesFilterUpcoming),
-                    SizedBox(width: sizes.sm),
-                    _buildFilterChip(context, 'completed', AppStrings.fixturesFilterCompleted),
-                  ],
-                ),
+              // Rule C5: Shared AppSegmentedControl for filters
+              AppSegmentedControl<String>(
+                items: [
+                  SegmentedItem(value: 'all', label: AppStrings.fixturesFilterAll.tr),
+                  SegmentedItem(value: 'live', label: AppStrings.fixturesFilterLive.tr),
+                  SegmentedItem(value: 'upcoming', label: AppStrings.fixturesFilterUpcoming.tr),
+                  SegmentedItem(value: 'completed', label: AppStrings.fixturesFilterCompleted.tr),
+                ],
+                selectedValue: controller.activeFilter.value,
+                onChanged: controller.setFilter,
               ),
               SizedBox(height: sizes.lg),
 
@@ -68,11 +89,17 @@ class FixturesView extends GetView<FixturesController> {
                   onAction: controller.loadFixtures,
                 )
               else
-                for (final match in matches) ...[
-                  MatchCard(
-                    match: match,
-                    onTap: () => controller.openMatchDetail(match),
-                  ),
+                // Rule C11: Date-grouped match sections
+                for (final entry in grouped.entries) ...[
+                  SectionHeader(title: entry.key),
+                  SizedBox(height: sizes.xs),
+                  for (final match in entry.value) ...[
+                    MatchCard(
+                      match: match,
+                      onTap: () => controller.openMatchDetail(match),
+                    ),
+                    SizedBox(height: sizes.sm),
+                  ],
                   SizedBox(height: sizes.sm),
                 ],
             ],
@@ -80,39 +107,5 @@ class FixturesView extends GetView<FixturesController> {
         ),
       );
     });
-  }
-
-  Widget _buildFilterChip(BuildContext context, String filterKey, String labelKey) {
-    final colors = context.colors;
-    final sizes = context.sizes;
-    final textStyles = context.text;
-
-    final isSelected = controller.activeFilter.value == filterKey;
-
-    return PressableScale(
-      child: GestureDetector(
-        onTap: () => controller.setFilter(filterKey),
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: sizes.md,
-            vertical: sizes.xs,
-          ),
-          decoration: BoxDecoration(
-            color: isSelected ? colors.primaryContainer : colors.surface,
-            borderRadius: BorderRadius.circular(sizes.radiusPill),
-            border: Border.all(
-              color: isSelected ? colors.primary : colors.border,
-            ),
-          ),
-          child: Text(
-            labelKey.tr,
-            style: textStyles.labelMd.copyWith(
-              color: isSelected ? colors.primary : colors.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

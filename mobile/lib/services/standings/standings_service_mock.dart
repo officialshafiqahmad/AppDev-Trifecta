@@ -2,77 +2,131 @@ import '../../core/utils/result.dart';
 import '../cache/cache_service.dart';
 import 'standings_service.dart';
 
-/// Mock StandingsService with local persistent cache.
+/// Mock StandingsService supporting multi-league canonical data and persistent caching.
 class StandingsServiceMock implements StandingsService {
   StandingsServiceMock({required this.cacheService});
 
   final CacheService cacheService;
 
-  static const StandingsResult _mockStandings = StandingsResult(
+  static const StandingsResult _premierDivision = StandingsResult(
     leagueId: 'league-alpha-1',
-    leagueName: 'Premier Championship',
+    leagueName: 'Premier Division',
     sportId: 'football',
     qualificationSpots: 2,
     rows: [
       StandingRow(
         rank: 1,
         teamId: 'club-alpha-1',
-        teamName: 'Alpha FC',
-        played: 10,
-        won: 8,
-        drawn: 1,
-        lost: 1,
-        scored: 24,
-        conceded: 7,
-        diff: 17,
-        points: 25,
+        teamName: 'Lahore FC',
+        played: 1,
+        won: 1,
+        drawn: 0,
+        lost: 0,
+        scored: 2,
+        conceded: 1,
+        diff: 1,
+        points: 3,
         fairPlay: 9,
         status: 'clinched',
-        resolvedBy: 'Goal Difference',
+        resolvedBy: 'Points',
       ),
       StandingRow(
         rank: 2,
+        teamId: 'club-alpha-3',
+        teamName: 'Islamabad United',
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        scored: 0,
+        conceded: 0,
+        diff: 0,
+        points: 0,
+        fairPlay: 10,
+        status: 'still_possible',
+      ),
+      StandingRow(
+        rank: 3,
+        teamId: 'club-alpha-4',
+        teamName: 'Peshawar Stars',
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        scored: 0,
+        conceded: 0,
+        diff: 0,
+        points: 0,
+        fairPlay: 10,
+        status: 'still_possible',
+      ),
+      StandingRow(
+        rank: 4,
         teamId: 'club-alpha-2',
-        teamName: 'Alpha United',
-        played: 10,
-        won: 6,
-        drawn: 2,
-        lost: 2,
-        scored: 18,
-        conceded: 11,
-        diff: 7,
-        points: 20,
+        teamName: 'Karachi City',
+        played: 1,
+        won: 0,
+        drawn: 0,
+        lost: 1,
+        scored: 1,
+        conceded: 2,
+        diff: -1,
+        points: 0,
+        fairPlay: 8,
+        status: 'still_possible',
+      ),
+    ],
+  );
+
+  static const StandingsResult _divisionOne = StandingsResult(
+    leagueId: 'league-beta-1',
+    leagueName: 'Division One',
+    sportId: 'football',
+    qualificationSpots: 1,
+    rows: [
+      StandingRow(
+        rank: 1,
+        teamId: 'club-beta-1',
+        teamName: 'Rawalpindi Royals',
+        played: 2,
+        won: 2,
+        drawn: 0,
+        lost: 0,
+        scored: 4,
+        conceded: 1,
+        diff: 3,
+        points: 6,
+        fairPlay: 10,
+        status: 'clinched',
+      ),
+      StandingRow(
+        rank: 2,
+        teamId: 'club-beta-2',
+        teamName: 'Quetta Gladiators',
+        played: 2,
+        won: 1,
+        drawn: 0,
+        lost: 1,
+        scored: 3,
+        conceded: 2,
+        diff: 1,
+        points: 3,
         fairPlay: 8,
         status: 'still_possible',
       ),
       StandingRow(
         rank: 3,
-        teamId: 'club-beta-1',
-        teamName: 'Beta Titans',
-        played: 10,
-        won: 3,
-        drawn: 1,
-        lost: 6,
-        scored: 12,
-        conceded: 19,
-        diff: -7,
-        points: 10,
-        fairPlay: 7,
-        status: 'eliminated',
-      ),
-      StandingRow(
-        rank: 4,
-        teamId: 'club-beta-2',
-        teamName: 'Beta Athletic',
-        played: 10,
-        won: 1,
+        teamId: 'club-beta-3',
+        teamName: 'Multan Sultans',
+        played: 2,
+        won: 0,
         drawn: 0,
-        lost: 9,
-        scored: 6,
-        conceded: 23,
-        diff: -17,
-        points: 3,
-        fairPlay: 8,
+        lost: 2,
+        scored: 1,
+        conceded: 5,
+        diff: -4,
+        points: 0,
+        fairPlay: 7,
         status: 'eliminated',
       ),
     ],
@@ -80,9 +134,8 @@ class StandingsServiceMock implements StandingsService {
 
   @override
   Future<Result<StandingsResult>> getStandings(String leagueId) async {
-    final cacheKey = 'cache_standings_$leagueId';
+    final cacheKey = 'cache_standings_canonical_$leagueId';
 
-    // 1. Try cache
     try {
       final cachedRes = await cacheService.get(cacheKey);
       final cached = cachedRes.dataOrNull;
@@ -91,8 +144,8 @@ class StandingsServiceMock implements StandingsService {
       }
     } catch (_) {}
 
-    // 2. Cache default mock and return
-    await cacheService.put(cacheKey, _mockStandings.toJson());
-    return const Success(_mockStandings);
+    final result = leagueId == 'league-beta-1' ? _divisionOne : _premierDivision;
+    await cacheService.put(cacheKey, result.toJson());
+    return Success(result);
   }
 }

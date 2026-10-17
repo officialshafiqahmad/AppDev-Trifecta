@@ -18,12 +18,14 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessageKey = ''.obs;
+  final RxBool obscurePassword = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Default pre-fill for fast testing
-    selectQuickAccount('organizer@nascon.test', 'Nascon@26');
+    // Rule C7: Clean start without pre-filled inputs
+    emailController.clear();
+    passwordController.clear();
   }
 
   @override
@@ -33,10 +35,15 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-  void selectQuickAccount(String email, String password) {
+  void toggleObscurePassword() {
+    obscurePassword.value = !obscurePassword.value;
+  }
+
+  /// Rule C8: Immediate sign-in on demo account tap
+  Future<void> signInWithDemo(String email, String password) async {
     emailController.text = email;
     passwordController.text = password;
-    hasError.value = false;
+    await submitLogin();
   }
 
   Future<void> submitLogin() async {

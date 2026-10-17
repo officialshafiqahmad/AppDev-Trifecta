@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/theme/theme_ext.dart';
-import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_status_chip.dart';
 import '../../../services/fixtures/fixtures_service.dart';
 
-/// Standard match card conforming to DESIGN_RULES.md §2:
-/// Home team left, score centre in headlineLg (largest text), away team right, status chip beneath.
+/// Compact 4-element match card strictly adhering to UX rule C10:
+/// 1. Top row: Status chip on left, Kickoff time on right
+/// 2. Center row: Home team name, Score block (titleLg bold), Away team name
+/// 3. Bottom row: Venue name with outlined pin icon, sport/league name
+/// 4. Tap anywhere opens Match Detail
 class MatchCard extends StatelessWidget {
   const MatchCard({
     super.key,
@@ -23,24 +27,12 @@ class MatchCard extends StatelessWidget {
     final sizes = context.sizes;
     final textStyles = context.text;
 
-    // Status chip styling
-    Color chipBg;
-    Color chipFg;
-    String statusText;
-
-    if (match.isLive) {
-      chipBg = colors.errorBg;
-      chipFg = colors.error;
-      statusText = 'LIVE';
-    } else if (match.isCompleted) {
-      chipBg = colors.surfaceVariant;
-      chipFg = colors.textSecondary;
-      statusText = 'FT';
-    } else {
-      chipBg = colors.primaryContainer;
-      chipFg = colors.primary;
-      statusText = Formatters.timeOnly(match.startsAt);
-    }
+    final (String statusLabel, AppStatusTone tone, bool dot) = switch (match.status) {
+      'in_progress' => ('LIVE', AppStatusTone.danger, true),
+      'completed' => ('FT', AppStatusTone.neutral, false),
+      'postponed' => ('POSTPONED', AppStatusTone.warning, false),
+      _ => (DateFormat('HH:mm').format(match.startsAt), AppStatusTone.info, false),
+    };
 
     final scoreDisplay = match.isUpcoming
         ? 'vs'
@@ -48,79 +40,104 @@ class MatchCard extends StatelessWidget {
 
     return AppCard(
       onTap: onTap,
-      padding: EdgeInsets.all(sizes.md),
+      padding: EdgeInsets.all(sizes.cardPadding),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header: Sport & Venue
+          // 1. Top Row: Status chip on left, Kickoff time/date on right
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                match.sport.toUpperCase(),
-                style: textStyles.overline,
+              AppStatusChip(
+                label: statusLabel,
+                tone: tone,
+                showDot: dot,
               ),
               Text(
-                match.venueName,
-                style: textStyles.caption,
+                DateFormat('EEE, d MMM · HH:mm').format(match.startsAt),
+                style: textStyles.caption.copyWith(color: colors.textSecondary),
               ),
             ],
           ),
           SizedBox(height: sizes.md),
 
-          // Main Row: Home Team - Score Center - Away Team
+          // 2. Center Row: Home Team - Score Block - Away Team
           Row(
             children: [
-              // Home Team (Left)
               Expanded(
+                flex: 4,
                 child: Text(
                   match.homeTeamName,
-                  style: textStyles.titleMd,
-                  textAlign: TextAlign.left,
+                  style: textStyles.titleMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.start,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-
-              // Score in Center (Largest text - headlineLg)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: sizes.md),
-                child: Column(
-                  children: [
-                    Text(
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: sizes.md,
+                      vertical: sizes.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: match.isLive ? colors.primaryContainer : colors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(sizes.radiusSm),
+                    ),
+                    child: Text(
                       scoreDisplay,
-                      style: textStyles.headlineLg.copyWith(
+                      style: textStyles.titleLg.copyWith(
+                        fontWeight: FontWeight.bold,
                         color: match.isLive ? colors.primary : colors.textPrimary,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    SizedBox(height: sizes.xs),
-                    // Status Chip beneath score
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: sizes.sm,
-                        vertical: sizes.xxs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: chipBg,
-                        borderRadius: BorderRadius.circular(sizes.radiusPill),
-                      ),
-                      child: Text(
-                        statusText,
-                        style: textStyles.labelMd.copyWith(color: chipFg),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-
-              // Away Team (Right)
               Expanded(
+                flex: 4,
                 child: Text(
                   match.awayTeamName,
-                  style: textStyles.titleMd,
-                  textAlign: TextAlign.right,
+                  style: textStyles.titleMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.end,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: sizes.md),
+
+          // 3. Bottom Row: Venue with outlined location pin, sport/league name
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: sizes.iconSm - 4,
+                    color: colors.textTertiary,
+                  ),
+                  SizedBox(width: sizes.xs),
+                  Text(
+                    match.venueName,
+                    style: textStyles.caption.copyWith(color: colors.textSecondary),
+                  ),
+                ],
+              ),
+              Text(
+                match.sport,
+                style: textStyles.caption.copyWith(
+                  color: colors.textTertiary,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

@@ -19,6 +19,9 @@ import '../../features/sync_status/view/sync_status_view.dart';
 import '../constants/app_sizes.dart';
 import 'app_routes.dart';
 
+import '../../services/auth/auth_service.dart';
+import 'role_guard.dart';
+
 /// Central page registry linking all routes to their views and bindings.
 abstract final class AppPages {
   static const AppSizes _sizes = AppSizes();
@@ -58,6 +61,15 @@ abstract final class AppPages {
       name: AppRoutes.rosterManage,
       page: () => const RosterManageView(),
       binding: RosterManageBinding(),
+      middlewares: [
+        RoleGuardMiddleware(
+          allowedRoles: const [
+            UserRole.superAdmin,
+            UserRole.organizer,
+            UserRole.clubManager,
+          ],
+        ),
+      ],
       transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionNormal,
     ),
@@ -65,6 +77,14 @@ abstract final class AppPages {
       name: AppRoutes.scoringEntry,
       page: () => const ScoringEntryView(),
       binding: ScoringEntryBinding(),
+      middlewares: [
+        RoleGuardMiddleware(
+          allowedRoles: const [
+            UserRole.superAdmin,
+            UserRole.organizer,
+          ],
+        ),
+      ],
       transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionNormal,
     ),

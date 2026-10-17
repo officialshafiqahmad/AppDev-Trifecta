@@ -14,7 +14,7 @@ class AppConfig {
     return const AppConfig(
       apiBaseUrl: String.fromEnvironment(
         'API_BASE_URL',
-        defaultValue: 'http://10.0.2.2:8080/api', // Android emulator default to host
+        defaultValue: 'http://10.0.2.2:8080', // Android emulator default to host (WITHOUT /api)
       ),
       appName: String.fromEnvironment(
         'APP_NAME',

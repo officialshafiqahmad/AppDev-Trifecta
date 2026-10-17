@@ -5,6 +5,7 @@ import '../../../services/club/club_service.dart';
 import '../../../services/fixtures/fixtures_service.dart';
 import '../../../services/standings/standings_service.dart';
 import '../../../services/store/store_service.dart';
+import '../../../services/sync/sync_service.dart';
 import '../../fixtures/controller/fixtures_controller.dart';
 import '../../profile/controller/profile_controller.dart';
 import '../../standings/controller/standings_controller.dart';
@@ -30,6 +31,7 @@ class MainNavBinding extends Bindings {
     Get.lazyPut<StandingsController>(
       () => StandingsController(
         standingsService: Get.find<StandingsService>(),
+        fixturesService: Get.find<FixturesService>(),
       ),
     );
 
@@ -37,6 +39,7 @@ class MainNavBinding extends Bindings {
       () => StoreController(
         storeService: Get.find<StoreService>(),
         authService: Get.find<AuthService>(),
+        syncService: Get.find<SyncService>(),
       ),
     );
 

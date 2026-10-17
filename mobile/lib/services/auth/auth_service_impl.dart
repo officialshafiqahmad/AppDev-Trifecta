@@ -15,6 +15,11 @@ class AuthServiceImpl implements AuthService {
   static const String _keyToken = 'auth_session_token';
   static const String _keyUser = 'auth_session_user';
 
+  SessionUser? _currentUser;
+
+  @override
+  SessionUser? get currentUser => _currentUser;
+
   // Demo accounts definition from FRONTEND_BRIEF.md
   static const Map<String, (String password, SessionUser user)> _demoUsers = {
     'admin@nascon.test': (
@@ -93,6 +98,7 @@ class AuthServiceImpl implements AuthService {
     try {
       await _storage.write(key: _keyToken, value: token);
       await _storage.write(key: _keyUser, value: jsonEncode(user.toJson()));
+      _currentUser = user;
       return Success(user);
     } catch (e) {
       return Failure(
@@ -108,6 +114,7 @@ class AuthServiceImpl implements AuthService {
   @override
   Future<Result<void>> logout() async {
     try {
+      _currentUser = null;
       await _storage.delete(key: _keyToken);
       await _storage.delete(key: _keyUser);
       return const Success(null);
@@ -126,10 +133,16 @@ class AuthServiceImpl implements AuthService {
   Future<Result<SessionUser?>> getCurrentUser() async {
     try {
       final userJson = await _storage.read(key: _keyUser);
-      if (userJson == null) return const Success(null);
+      if (userJson == null) {
+        _currentUser = null;
+        return const Success(null);
+      }
       final map = jsonDecode(userJson) as Map<String, dynamic>;
-      return Success(SessionUser.fromJson(map));
+      final user = SessionUser.fromJson(map);
+      _currentUser = user;
+      return Success(user);
     } catch (e) {
+      _currentUser = null;
       return const Success(null);
     }
   }

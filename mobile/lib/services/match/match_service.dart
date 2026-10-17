@@ -22,28 +22,29 @@ class TeamScore {
 
   factory TeamScore.fromJson(Map<String, dynamic> json) {
     return TeamScore(
-      teamId: json['teamId'] as String,
-      teamName: json['teamName'] as String? ?? 'Team',
-      score: json['score'] as int? ?? 0,
-      wickets: json['wickets'] as int?,
-      balls: json['balls'] as int?,
-      overs: json['overs'] as String?,
-      fairPlay: json['fairPlay'] as int? ?? 10,
+      teamId: (json['team_id'] ?? json['teamId']) as String,
+      teamName: (json['team_name'] ?? json['teamName']) as String? ?? 'Team',
+      score: (json['score']) as int? ?? 0,
+      wickets: (json['wickets']) as int?,
+      balls: (json['balls']) as int?,
+      overs: (json['overs']) as String?,
+      fairPlay: (json['fair_play'] ?? json['fairPlay']) as int? ?? 10,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'teamId': teamId,
-        'teamName': teamName,
+        'team_id': teamId,
+        'team_name': teamName,
         'score': score,
         'wickets': wickets,
         'balls': balls,
         'overs': overs,
-        'fairPlay': fairPlay,
+        'fair_play': fairPlay,
       };
 }
 
-/// Match event representation.
+/// Match event representation strictly adhering to API_MODELS.md §2.
+/// Hard law: Must NOT contain a timestamp field.
 class MatchEvent {
   const MatchEvent({
     required this.sequence,
@@ -53,7 +54,6 @@ class MatchEvent {
     required this.signature,
     this.compensated = false,
     this.compensatedBy,
-    required this.timestamp,
   });
 
   final int sequence;
@@ -63,30 +63,27 @@ class MatchEvent {
   final String signature;
   final bool compensated;
   final String? compensatedBy;
-  final DateTime timestamp;
 
   factory MatchEvent.fromJson(Map<String, dynamic> json) {
     return MatchEvent(
-      sequence: json['sequence'] as int? ?? 1,
-      eventId: json['eventId'] as String,
-      type: json['type'] as String,
+      sequence: (json['sequence']) as int? ?? 1,
+      eventId: (json['event_id'] ?? json['eventId']) as String,
+      type: (json['type']) as String,
       payload: (json['payload'] as Map<String, dynamic>?) ?? {},
-      signature: json['signature'] as String? ?? 'sig-mock',
-      compensated: json['compensated'] as bool? ?? false,
-      compensatedBy: json['compensatedBy'] as String?,
-      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+      signature: (json['signature']) as String? ?? 'sig-mock',
+      compensated: (json['compensated']) as bool? ?? false,
+      compensatedBy: (json['compensated_by'] ?? json['compensatedBy']) as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
         'sequence': sequence,
-        'eventId': eventId,
+        'event_id': eventId,
         'type': type,
         'payload': payload,
         'signature': signature,
         'compensated': compensated,
-        'compensatedBy': compensatedBy,
-        'timestamp': timestamp.toIso8601String(),
+        'compensated_by': compensatedBy,
       };
 }
 
@@ -145,30 +142,30 @@ class ScoreProjection {
 
   factory ScoreProjection.fromJson(Map<String, dynamic> json) {
     return ScoreProjection(
-      matchId: json['matchId'] as String,
-      sportId: json['sportId'] as String,
-      leagueId: json['leagueId'] as String?,
-      status: json['status'] as String,
-      outcome: json['outcome'] as String? ?? 'pending',
-      winnerTeamId: json['winnerTeamId'] as String?,
-      tiebreakWinnerTeamId: json['tiebreakWinnerTeamId'] as String?,
+      matchId: (json['match_id'] ?? json['matchId']) as String,
+      sportId: (json['sport_id'] ?? json['sportId']) as String,
+      leagueId: (json['league_id'] ?? json['leagueId']) as String?,
+      status: (json['status']) as String,
+      outcome: (json['outcome']) as String? ?? 'pending',
+      winnerTeamId: (json['winner_team_id'] ?? json['winnerTeamId']) as String?,
+      tiebreakWinnerTeamId: (json['tiebreak_winner_team_id'] ?? json['tiebreakWinnerTeamId']) as String?,
       home: TeamScore.fromJson(json['home'] as Map<String, dynamic>),
       away: TeamScore.fromJson(json['away'] as Map<String, dynamic>),
-      version: json['version'] as int? ?? 1,
-      events: (json['events'] as List<dynamic>? ?? [])
+      version: (json['version']) as int? ?? 1,
+      events: ((json['events']) as List<dynamic>? ?? [])
           .map((e) => MatchEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'matchId': matchId,
-        'sportId': sportId,
-        'leagueId': leagueId,
+        'match_id': matchId,
+        'sport_id': sportId,
+        'league_id': leagueId,
         'status': status,
         'outcome': outcome,
-        'winnerTeamId': winnerTeamId,
-        'tiebreakWinnerTeamId': tiebreakWinnerTeamId,
+        'winner_team_id': winnerTeamId,
+        'tiebreak_winner_team_id': tiebreakWinnerTeamId,
         'home': home.toJson(),
         'away': away.toJson(),
         'version': version,
