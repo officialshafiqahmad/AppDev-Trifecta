@@ -6,6 +6,8 @@ const { databaseReady } = require('./db');
 const { validateLeague, createLeague } = require('./leagues');
 const { appendEvent, getScore } = require('./scoring');
 const { checkout, getInventory } = require('./store');
+const { mountRbac } = require('./rbac');
+const { rateLimitApi } = require('./ratelimit');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -22,6 +24,11 @@ function createApp(pool) {
   });
 
   app.use(express.json({ limit: MAX_BODY }));
+  mountRbac(app, pool);
+
+  app.get('/api/v1/ping', rateLimitApi(), (req, res) => {
+    res.status(200).json({ pong: true });
+  });
 
   app.get('/health', async (req, res, next) => {
     try {
