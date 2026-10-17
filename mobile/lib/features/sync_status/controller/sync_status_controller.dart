@@ -13,8 +13,8 @@ class SyncStatusController extends GetxController {
 
   SyncServiceMock get _mock => syncService as SyncServiceMock;
 
-  bool get isOnline => _mock.rxIsOnline.value;
-  bool get isSyncing => _mock.rxIsSyncing.value;
+  bool get isOnline => _mock.isOnlineRx.value;
+  bool get isSyncing => _mock.isSyncingRx.value;
   List<QueuedAction> get actions => _mock.rxActions;
 
   void toggleOnline() {

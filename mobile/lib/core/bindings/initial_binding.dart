@@ -26,9 +26,10 @@ import '../../services/sync/sync_service_mock.dart';
 /// Registers all global service singletons permanently.
 /// Controllers only ever depend on these interfaces via Get.find().
 class InitialBinding extends Bindings {
-  InitialBinding(this.config);
+  InitialBinding(this.config, {this.preloadedAuth});
 
   final AppConfig config;
+  final AuthService? preloadedAuth;
 
   @override
   void dependencies() {
@@ -46,7 +47,7 @@ class InitialBinding extends Bindings {
     final sync = SyncServiceMock(cacheService: cache, settingsService: settings);
     Get.put<SyncService>(sync, permanent: true);
 
-    final auth = AuthServiceImpl();
+    final auth = preloadedAuth ?? AuthServiceImpl();
     Get.put<AuthService>(auth, permanent: true);
 
     final fixtures = FixturesServiceMock(cacheService: cache);

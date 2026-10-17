@@ -36,34 +36,34 @@ class MatchSummary {
 
   factory MatchSummary.fromJson(Map<String, dynamic> json) {
     return MatchSummary(
-      matchId: json['matchId'] as String,
-      leagueId: json['leagueId'] as String,
-      homeTeamId: json['homeTeamId'] as String,
-      homeTeamName: json['homeTeamName'] as String,
-      awayTeamId: json['awayTeamId'] as String,
-      awayTeamName: json['awayTeamName'] as String,
-      status: json['status'] as String,
-      startsAt: DateTime.tryParse(json['startsAt'] as String? ?? '') ?? DateTime.now(),
-      sport: json['sport'] as String? ?? 'Football',
-      homeScore: json['homeScore'] as int?,
-      awayScore: json['awayScore'] as int?,
-      venueName: json['venueName'] as String? ?? 'A-01 Main Arena',
+      matchId: (json['match_id'] ?? json['matchId']) as String,
+      leagueId: (json['league_id'] ?? json['leagueId']) as String,
+      homeTeamId: (json['home_team_id'] ?? json['homeTeamId']) as String,
+      homeTeamName: (json['home_team_name'] ?? json['homeTeamName']) as String? ?? 'Home Team',
+      awayTeamId: (json['away_team_id'] ?? json['awayTeamId']) as String,
+      awayTeamName: (json['away_team_name'] ?? json['awayTeamName']) as String? ?? 'Away Team',
+      status: (json['status']) as String,
+      startsAt: DateTime.tryParse((json['starts_at'] ?? json['startsAt']) as String? ?? '') ?? DateTime.now(),
+      sport: (json['sport']) as String? ?? 'Football',
+      homeScore: (json['home_score'] ?? json['homeScore']) as int?,
+      awayScore: (json['away_score'] ?? json['awayScore']) as int?,
+      venueName: (json['venue_name'] ?? json['venueName']) as String? ?? 'A-01 Main Arena',
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'matchId': matchId,
-        'leagueId': leagueId,
-        'homeTeamId': homeTeamId,
-        'homeTeamName': homeTeamName,
-        'awayTeamId': awayTeamId,
-        'awayTeamName': awayTeamName,
+        'match_id': matchId,
+        'league_id': leagueId,
+        'home_team_id': homeTeamId,
+        'home_team_name': homeTeamName,
+        'away_team_id': awayTeamId,
+        'away_team_name': awayTeamName,
         'status': status,
-        'startsAt': startsAt.toIso8601String(),
+        'starts_at': startsAt.toIso8601String(),
         'sport': sport,
-        'homeScore': homeScore,
-        'awayScore': awayScore,
-        'venueName': venueName,
+        'home_score': homeScore,
+        'away_score': awayScore,
+        'venue_name': venueName,
       };
 }
 

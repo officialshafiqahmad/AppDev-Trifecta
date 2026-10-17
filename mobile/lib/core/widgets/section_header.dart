@@ -7,12 +7,14 @@ import '../theme/theme_ext.dart';
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     super.key,
-    required this.titleKey,
+    this.titleKey,
+    this.title,
     this.actionLabelKey,
     this.onAction,
-  });
+  }) : assert(titleKey != null || title != null, 'Either title or titleKey must be provided');
 
-  final String titleKey;
+  final String? titleKey;
+  final String? title;
   final String? actionLabelKey;
   final VoidCallback? onAction;
 
@@ -26,7 +28,7 @@ class SectionHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            titleKey.tr,
+            title ?? titleKey!.tr,
             style: textStyles.titleMd,
           ),
         ),

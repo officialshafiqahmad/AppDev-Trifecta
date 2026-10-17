@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-
+import '../../../services/fixtures/fixtures_service.dart';
 import '../../../services/standings/standings_service.dart';
 import '../controller/standings_controller.dart';
 
@@ -10,6 +10,7 @@ class StandingsBinding extends Bindings {
     Get.lazyPut<StandingsController>(
       () => StandingsController(
         standingsService: Get.find<StandingsService>(),
+        fixturesService: Get.find<FixturesService>(),
       ),
     );
   }

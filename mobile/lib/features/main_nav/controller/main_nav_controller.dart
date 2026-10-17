@@ -19,12 +19,25 @@ class MainNavController extends GetxController {
 
   Future<void> loadSession() async {
     final res = await authService.getCurrentUser();
-    if (res.isSuccess) {
-      currentUser.value = res.dataOrNull;
+    if (res.isSuccess && res.dataOrNull != null) {
+      final user = res.dataOrNull!;
+      currentUser.value = user;
+
+      // Rule B10: Role-aware initial tab
+      if (user.role == UserRole.player || user.role == UserRole.clubManager) {
+        currentIndex.value = 3; // Profile
+      } else {
+        currentIndex.value = 0; // Fixtures
+      }
     }
   }
 
   void changeTab(int index) {
+    currentIndex.value = index;
+  }
+
+  /// Rule G10: Switch tabs without stacking duplicate navigation shells
+  void switchTab(int index) {
     currentIndex.value = index;
   }
 }

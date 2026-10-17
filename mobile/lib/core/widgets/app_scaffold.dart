@@ -53,11 +53,13 @@ class AppScaffold extends StatelessWidget {
               elevation: 0,
               toolbarHeight: sizes.appBar,
               centerTitle: false,
+              automaticallyImplyLeading: leading != null,
               leading: leading,
               title: titleWidget ??
                   (titleKey != null
                       ? Text(
                           titleKey!.tr,
+                          key: ValueKey(titleKey),
                           style: titleStyle ?? textStyles.titleLg,
                         )
                       : null),
@@ -67,7 +69,8 @@ class AppScaffold extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final padding = sizes.paddingFor(constraints.maxWidth);
-            return Center(
+            return Align(
+              alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: sizes.contentMaxWidth,

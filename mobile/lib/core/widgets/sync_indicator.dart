@@ -28,8 +28,8 @@ class SyncIndicator extends StatelessWidget {
     }
 
     return Obx(() {
-      final isOnline = syncService.rxIsOnline.value;
-      final isSyncing = syncService.rxIsSyncing.value;
+      final isOnline = syncService.isOnlineRx.value;
+      final isSyncing = syncService.isSyncingRx.value;
       final pendingCount = syncService.rxActions.where((a) => a.isPending).length;
 
       Color badgeBg;
