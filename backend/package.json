@@ -1,0 +1,20 @@
+{
+  "name": "trifecta-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NaSCon 2026 Part I backend — Team Trifecta",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "redis": "^4.7.0"
+  }
+}
