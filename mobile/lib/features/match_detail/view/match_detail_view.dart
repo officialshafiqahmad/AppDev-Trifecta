@@ -5,6 +5,7 @@ import '../../../core/strings/app_strings.dart';
 import '../../../core/theme/theme_ext.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_overlay.dart';
@@ -14,7 +15,7 @@ import '../controller/match_detail_controller.dart';
 import '../widgets/event_timeline_tile.dart';
 import '../widgets/pinned_merch_card.dart';
 
-/// Dumb layout view for Match Detail screen.
+/// Dumb layout view for Match Detail screen adhering to rules C4, C12, C13, C14, and C15.
 class MatchDetailView extends GetView<MatchDetailController> {
   const MatchDetailView({super.key});
 
@@ -42,6 +43,12 @@ class MatchDetailView extends GetView<MatchDetailController> {
 
         final proj = controller.projection.value!;
 
+        final (String statusLabel, AppStatusTone tone, bool dot) = switch (proj.status) {
+          'in_progress' => ('LIVE', AppStatusTone.danger, true),
+          'completed' => ('FULL TIME', AppStatusTone.neutral, false),
+          _ => ('UPCOMING', AppStatusTone.info, false),
+        };
+
         return RefreshIndicator(
           onRefresh: controller.loadProjection,
           child: SingleChildScrollView(
@@ -50,118 +57,159 @@ class MatchDetailView extends GetView<MatchDetailController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Live Score Block (Score is the largest text: headlineLg)
+                // 1. Live Score Card (Rule C12 & C13)
                 AppCard(
-                  padding: EdgeInsets.all(sizes.lg),
+                  padding: EdgeInsets.all(sizes.cardPadding),
                   child: Column(
                     children: [
+                      // Sport & Status Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             proj.sportId.toUpperCase(),
-                            style: textStyles.overline,
+                            style: textStyles.overline.copyWith(color: colors.textSecondary),
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: sizes.sm,
-                              vertical: sizes.xxs,
-                            ),
-                            decoration: BoxDecoration(
-                              color: proj.isLive ? colors.errorBg : colors.primaryContainer,
-                              borderRadius: BorderRadius.circular(sizes.radiusPill),
-                            ),
-                            child: Text(
-                              proj.status.toUpperCase(),
-                              style: textStyles.labelMd.copyWith(
-                                color: proj.isLive ? colors.error : colors.primary,
-                              ),
-                            ),
+                          AppStatusChip(
+                            label: statusLabel,
+                            tone: tone,
+                            showDot: dot,
                           ),
                         ],
                       ),
                       SizedBox(height: sizes.lg),
 
+                      // Teams & Score Row
                       Row(
                         children: [
+                          // Home Team
                           Expanded(
+                            flex: 4,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                CircleAvatar(
+                                  radius: sizes.iconMd,
+                                  backgroundColor: colors.primaryContainer,
+                                  child: Text(
+                                    proj.home.teamName.isNotEmpty ? proj.home.teamName[0] : 'H',
+                                    style: textStyles.titleMd.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.primary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: sizes.xs),
                                 Text(
                                   proj.home.teamName,
-                                  style: textStyles.headlineMd,
+                                  style: textStyles.titleMd.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: sizes.xxs),
-                                Text(
-                                  'Fair Play: ${proj.home.fairPlay}/10',
-                                  style: textStyles.caption,
                                 ),
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: sizes.lg),
-                            child: Text(
-                              '${proj.home.score} - ${proj.away.score}',
-                              style: textStyles.headlineLg.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: proj.isLive ? colors.primary : colors.textPrimary,
+
+                          // Score in Center (Largest text: headlineLg)
+                          Expanded(
+                            flex: 3,
+                            child: Center(
+                              child: Text(
+                                proj.isLive || proj.status == 'completed'
+                                    ? '${proj.home.score} - ${proj.away.score}'
+                                    : 'vs',
+                                style: textStyles.headlineLg.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: proj.isLive ? colors.primary : colors.textPrimary,
+                                ),
                               ),
                             ),
                           ),
+
+                          // Away Team
                           Expanded(
+                            flex: 4,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                CircleAvatar(
+                                  radius: sizes.iconMd,
+                                  backgroundColor: colors.surfaceVariant,
+                                  child: Text(
+                                    proj.away.teamName.isNotEmpty ? proj.away.teamName[0] : 'A',
+                                    style: textStyles.titleMd.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: sizes.xs),
                                 Text(
                                   proj.away.teamName,
-                                  style: textStyles.headlineMd,
-                                  textAlign: TextAlign.right,
+                                  style: textStyles.titleMd.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                SizedBox(height: sizes.xxs),
-                                Text(
-                                  'Fair Play: ${proj.away.fairPlay}/10',
-                                  style: textStyles.caption,
-                                  textAlign: TextAlign.right,
-                                ),
                               ],
                             ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: sizes.lg),
+                      Divider(height: 1, color: colors.border),
+                      SizedBox(height: sizes.sm),
+
+                      // Venue & Fair Play row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: sizes.iconSm - 4,
+                                color: colors.textTertiary,
+                              ),
+                              SizedBox(width: sizes.xs),
+                              Text(
+                                'A-01 Main Arena',
+                                style: textStyles.caption.copyWith(color: colors.textSecondary),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            'Fair Play: ${proj.home.fairPlay} - ${proj.away.fairPlay}',
+                            style: textStyles.caption.copyWith(color: colors.textTertiary),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: sizes.xl),
+                SizedBox(height: sizes.lg),
 
-                // Role-Gated Action: Enter Score Event (Organizer ONLY)
+                // 2. Role-Gated Action: Enter Score Event (Organizer ONLY & Match is Live)
                 if (controller.canEnterScores.value) ...[
                   PrimaryButton(
                     labelKey: AppStrings.matchEnterScoreAction,
                     onPressed: controller.openScoringEntry,
                     icon: Icons.edit_note_outlined,
                   ),
-                  SizedBox(height: sizes.xl),
+                  SizedBox(height: sizes.lg),
                 ],
 
-                // Pinned Merchandise Showcase
-                PinnedMerchCard(
-                  onViewStore: controller.openStoreMerchandise,
-                ),
-                SizedBox(height: sizes.xl),
-
-                // Event Timeline
+                // 3. Event Timeline in a SINGLE AppCard (Rule C4 & C15)
                 SectionHeader(
                   titleKey: AppStrings.matchEventsTitle,
                   actionLabelKey: AppStrings.commonRefresh,
                   onAction: controller.loadProjection,
                 ),
-                SizedBox(height: sizes.md),
+                SizedBox(height: sizes.xs),
 
                 if (proj.events.isEmpty)
                   const EmptyView(
@@ -169,10 +217,25 @@ class MatchDetailView extends GetView<MatchDetailController> {
                     icon: Icons.timeline_outlined,
                   )
                 else
-                  for (final evt in proj.events.reversed) ...[
-                    EventTimelineTile(event: evt),
-                    SizedBox(height: sizes.sm),
-                  ],
+                  AppCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        for (int i = 0; i < proj.events.length; i++) ...[
+                          EventTimelineTile(event: proj.events.reversed.toList()[i]),
+                          if (i < proj.events.length - 1)
+                            Divider(height: 1, color: colors.border),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                SizedBox(height: sizes.lg),
+
+                // 4. Rule C14: Pinned Merchandise Showcase BELOW event timeline
+                PinnedMerchCard(
+                  onViewStore: controller.openStoreMerchandise,
+                ),
               ],
             ),
           ),

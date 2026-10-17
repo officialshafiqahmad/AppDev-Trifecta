@@ -1,5 +1,5 @@
 name: trifecta
-description: "A new Flutter project."
+description: "Trifecta - Grassroots Football Operations Platform"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -38,6 +38,8 @@ dependencies:
   intl: ^0.20.3
   flutter_secure_storage: ^11.2.0
   path_provider: ^2.1.6
+  connectivity_plus: ^7.3.2
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

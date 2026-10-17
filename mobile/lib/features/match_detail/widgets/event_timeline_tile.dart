@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/theme_ext.dart';
-import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_status_chip.dart';
 import '../../../services/match/match_service.dart';
 
-/// Event timeline row representing a match event.
+/// Single event timeline row designed to sit inside a single AppCard with dividers (Rule C4 & C15).
 class EventTimelineTile extends StatelessWidget {
   const EventTimelineTile({
     super.key,
@@ -23,52 +23,70 @@ class EventTimelineTile extends StatelessWidget {
     final isScore = event.type == 'score';
     final isCompensation = event.type == 'compensation';
 
-    IconData icon;
-    Color iconColor;
-
-    if (isCompensation) {
-      icon = Icons.undo_outlined;
-      iconColor = colors.warning;
-    } else if (isScore) {
-      icon = Icons.sports_soccer_outlined;
-      iconColor = colors.primary;
-    } else {
-      icon = Icons.info_outline_rounded;
-      iconColor = colors.textSecondary;
-    }
+    final (IconData icon, Color iconColor) = switch (event.type) {
+      'compensation' => (Icons.undo_outlined, colors.warning),
+      'score' => (Icons.sports_soccer_outlined, colors.primary),
+      'discipline' => (Icons.warning_amber_outlined, colors.error),
+      _ => (Icons.info_outline, colors.textSecondary),
+    };
 
     String title;
     String subtitle;
+    final minute = event.payload['minute'] ?? (event.sequence * 12);
 
     if (isScore) {
-      title = event.payload['player'] as String? ?? 'Goal Scored';
-      subtitle = 'Team: ${event.payload['team_id']}';
+      final playerName = event.payload['player'] as String? ?? 'Goal';
+      final teamName = event.payload['team_name'] as String? ??
+          (event.payload['team_id'] == 'club-alpha-1'
+              ? 'Lahore FC'
+              : event.payload['team_id'] == 'club-alpha-2'
+                  ? 'Karachi City'
+                  : 'Team');
+      title = playerName;
+      subtitle = '$teamName · Goal';
     } else if (isCompensation) {
-      title = 'Score Correction (Compensated)';
-      subtitle = 'Reason: ${event.payload['reason']}';
+      title = 'Score Correction';
+      subtitle = event.payload['reason'] as String? ?? 'Disallowed by referee';
     } else {
-      title = 'Match Event (${event.type})';
-      subtitle = 'Sequence #${event.sequence}';
+      title = event.type == 'match_start' ? 'Match Kickoff' : 'Match Event';
+      subtitle = 'First Half';
     }
 
-    return AppCard(
-      padding: EdgeInsets.all(sizes.md),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: sizes.cardPadding,
+        vertical: sizes.md,
+      ),
       child: Row(
         children: [
+          // Minute badge
           Container(
-            width: sizes.huge,
-            height: sizes.huge,
+            width: 38,
+            height: 38,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: isCompensated ? colors.surfaceVariant : colors.primaryContainer,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(sizes.radiusSm),
             ),
-            child: Icon(
-              icon,
-              size: sizes.iconSm,
-              color: isCompensated ? colors.textTertiary : iconColor,
+            child: Text(
+              "$minute'",
+              style: textStyles.labelMd.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isCompensated ? colors.textTertiary : colors.primary,
+              ),
             ),
           ),
           SizedBox(width: sizes.md),
+
+          // Event Icon
+          Icon(
+            icon,
+            size: sizes.iconSm,
+            color: isCompensated ? colors.textTertiary : iconColor,
+          ),
+          SizedBox(width: sizes.md),
+
+          // Event Detail
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,6 +94,7 @@ class EventTimelineTile extends StatelessWidget {
                 Text(
                   title,
                   style: textStyles.titleMd.copyWith(
+                    fontWeight: FontWeight.w600,
                     decoration: isCompensated ? TextDecoration.lineThrough : null,
                     color: isCompensated ? colors.textTertiary : colors.textPrimary,
                   ),
@@ -83,23 +102,20 @@ class EventTimelineTile extends StatelessWidget {
                 SizedBox(height: sizes.xxs),
                 Text(
                   subtitle,
-                  style: textStyles.bodySm.copyWith(color: colors.textSecondary),
+                  style: textStyles.caption.copyWith(color: colors.textSecondary),
                 ),
               ],
             ),
           ),
-          if (isCompensated)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: sizes.sm, vertical: sizes.xxs),
-              decoration: BoxDecoration(
-                color: colors.errorBg,
-                borderRadius: BorderRadius.circular(sizes.radiusPill),
-              ),
-              child: Text(
-                'Compensated',
-                style: textStyles.labelMd.copyWith(color: colors.error),
-              ),
+
+          // Compensated pill
+          if (isCompensated) ...[
+            SizedBox(width: sizes.sm),
+            const AppStatusChip(
+              label: 'Compensated',
+              tone: AppStatusTone.danger,
             ),
+          ],
         ],
       ),
     );

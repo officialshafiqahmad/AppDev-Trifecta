@@ -40,27 +40,27 @@ class StandingRow {
 
   factory StandingRow.fromJson(Map<String, dynamic> json) {
     return StandingRow(
-      rank: json['rank'] as int,
-      teamId: json['teamId'] as String,
-      teamName: json['teamName'] as String? ?? 'Team',
-      played: json['played'] as int,
-      won: json['won'] as int,
-      drawn: json['drawn'] as int,
-      lost: json['lost'] as int,
-      scored: json['scored'] as int,
-      conceded: json['conceded'] as int,
-      diff: json['diff'] as num,
-      points: json['points'] as int,
-      fairPlay: json['fairPlay'] as int? ?? 10,
-      status: json['status'] as String? ?? 'still_possible',
-      resolvedBy: json['resolvedBy'] as String?,
+      rank: (json['rank']) as int,
+      teamId: (json['team_id'] ?? json['teamId']) as String,
+      teamName: (json['team_name'] ?? json['teamName']) as String? ?? 'Team',
+      played: (json['played']) as int,
+      won: (json['won']) as int,
+      drawn: (json['drawn']) as int,
+      lost: (json['lost']) as int,
+      scored: (json['scored']) as int,
+      conceded: (json['conceded']) as int,
+      diff: (json['diff']) as num,
+      points: (json['points']) as int,
+      fairPlay: (json['fair_play'] ?? json['fairPlay']) as int? ?? 10,
+      status: (json['status']) as String? ?? 'still_possible',
+      resolvedBy: (json['resolved_by'] ?? json['resolvedBy']) as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
         'rank': rank,
-        'teamId': teamId,
-        'teamName': teamName,
+        'team_id': teamId,
+        'team_name': teamName,
         'played': played,
         'won': won,
         'drawn': drawn,
@@ -69,13 +69,13 @@ class StandingRow {
         'conceded': conceded,
         'diff': diff,
         'points': points,
-        'fairPlay': fairPlay,
+        'fair_play': fairPlay,
         'status': status,
-        'resolvedBy': resolvedBy,
+        'resolved_by': resolvedBy,
       };
 }
 
-/// Standings result with qualification spots.
+/// Standings result with qualification spots and optional h2h tie-breaker data.
 class StandingsResult {
   const StandingsResult({
     required this.leagueId,
@@ -83,6 +83,7 @@ class StandingsResult {
     required this.sportId,
     required this.qualificationSpots,
     required this.rows,
+    this.h2h,
   });
 
   final String leagueId;
@@ -90,25 +91,29 @@ class StandingsResult {
   final String sportId;
   final int qualificationSpots;
   final List<StandingRow> rows;
+  final Map<String, dynamic>? h2h;
 
   factory StandingsResult.fromJson(Map<String, dynamic> json) {
+    final rawTable = json['table'] ?? json['rows'];
     return StandingsResult(
-      leagueId: json['leagueId'] as String,
-      leagueName: json['leagueName'] as String? ?? 'League',
-      sportId: json['sportId'] as String,
-      qualificationSpots: json['qualificationSpots'] as int? ?? 2,
-      rows: (json['rows'] as List<dynamic>? ?? [])
+      leagueId: (json['league_id'] ?? json['leagueId']) as String,
+      leagueName: (json['league_name'] ?? json['leagueName']) as String? ?? 'League',
+      sportId: (json['sport_id'] ?? json['sportId']) as String,
+      qualificationSpots: (json['qualification_spots'] ?? json['qualificationSpots']) as int? ?? 2,
+      rows: (rawTable as List<dynamic>? ?? [])
           .map((r) => StandingRow.fromJson(r as Map<String, dynamic>))
           .toList(),
+      h2h: json['h2h'] as Map<String, dynamic>?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'leagueId': leagueId,
-        'leagueName': leagueName,
-        'sportId': sportId,
-        'qualificationSpots': qualificationSpots,
-        'rows': rows.map((r) => r.toJson()).toList(),
+        'league_id': leagueId,
+        'league_name': leagueName,
+        'sport_id': sportId,
+        'qualification_spots': qualificationSpots,
+        'table': rows.map((r) => r.toJson()).toList(),
+        if (h2h != null) 'h2h': h2h,
       };
 }
 

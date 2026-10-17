@@ -49,6 +49,10 @@ class AppTextStyles {
   TextStyle get titleMd =>
       _base(size: 16, weight: FontWeight.w600, lineHeight: 1.40);
 
+  /// titleSm 14/600/1.40
+  TextStyle get titleSm =>
+      _base(size: 14, weight: FontWeight.w600, lineHeight: 1.40);
+
   /// bodyLg 16/400/1.50
   TextStyle get bodyLg =>
       _base(size: 16, weight: FontWeight.w400, lineHeight: 1.50);

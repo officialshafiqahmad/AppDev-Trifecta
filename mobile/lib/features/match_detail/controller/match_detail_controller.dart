@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'package:get/get.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../core/strings/app_strings.dart';
 import '../../../services/auth/auth_service.dart';
 import '../../../services/match/match_service.dart';
+import '../../main_nav/controller/main_nav_controller.dart';
 
-/// Controller managing single match score projection, events, and role gating.
+/// Controller managing single match score projection, events, polling timer, and role gating.
 class MatchDetailController extends GetxController {
   MatchDetailController({
     required this.matchService,
@@ -24,20 +26,45 @@ class MatchDetailController extends GetxController {
   final Rx<ScoreProjection?> projection = Rx<ScoreProjection?>(null);
   final RxBool canEnterScores = false.obs;
 
+  Timer? _liveScoreTimer;
+
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-    matchId = (args is String && args.isNotEmpty) ? args : 'm-alpha-1';
-    checkRolePermissions();
+    matchId = (args is String && args.isNotEmpty) ? args : 'match-alpha-1';
     loadProjection();
   }
 
-  Future<void> checkRolePermissions() async {
-    final userRes = await authService.getCurrentUser();
-    if (userRes.isSuccess && userRes.dataOrNull != null) {
-      canEnterScores.value = userRes.dataOrNull!.isOrganizer;
+  @override
+  void onClose() {
+    _liveScoreTimer?.cancel();
+    super.onClose();
+  }
+
+  void _startLiveTimerIfNeeded() {
+    _liveScoreTimer?.cancel();
+    if (projection.value?.isLive == true) {
+      // Rule B9: 15-second polling timer for live matches
+      _liveScoreTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+        _pollLiveScore();
+      });
     }
+  }
+
+  Future<void> _pollLiveScore() async {
+    final result = await matchService.getScoreProjection(matchId);
+    if (result.isSuccess && result.dataOrNull != null) {
+      projection.value = result.dataOrNull;
+      _updatePermission();
+    }
+  }
+
+  void _updatePermission() {
+    final user = authService.currentUser;
+    // Rule G13: Entering scores is only allowed for organizers when match is in_progress
+    final isLive = projection.value?.status == 'in_progress';
+    canEnterScores.value = (user?.isOrganizer ?? false) && isLive;
   }
 
   Future<void> loadProjection() async {
@@ -50,6 +77,8 @@ class MatchDetailController extends GetxController {
 
     if (result.isSuccess) {
       projection.value = result.dataOrNull;
+      _updatePermission();
+      _startLiveTimerIfNeeded();
     } else {
       hasError.value = true;
       errorMessageKey.value = result.failureOrNull?.userMessageKey ?? AppStrings.errDefault;
@@ -63,7 +92,13 @@ class MatchDetailController extends GetxController {
     )?.then((_) => loadProjection());
   }
 
+  /// Rule G10: Switch to Store tab without creating stacked navigation shells
   void openStoreMerchandise() {
-    Get.toNamed(AppRoutes.main);
+    if (Get.isRegistered<MainNavController>()) {
+      Get.find<MainNavController>().switchTab(2);
+      Get.back();
+    } else {
+      Get.offAllNamed(AppRoutes.main);
+    }
   }
 }

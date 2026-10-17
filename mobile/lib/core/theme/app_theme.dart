@@ -60,6 +60,36 @@ abstract final class AppTheme {
         color: palette.border,
         thickness: 1,
       ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: palette.surface,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: _sizes.lg,
+          vertical: _sizes.md + 2,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_sizes.radiusMd),
+          borderSide: BorderSide(color: palette.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_sizes.radiusMd),
+          borderSide: BorderSide(color: palette.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_sizes.radiusMd),
+          borderSide: BorderSide(color: palette.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_sizes.radiusMd),
+          borderSide: BorderSide(color: palette.error, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_sizes.radiusMd),
+          borderSide: BorderSide(color: palette.error, width: 1.5),
+        ),
+        hintStyle: styles.bodyMd.copyWith(color: palette.textTertiary),
+        errorStyle: styles.caption.copyWith(color: palette.error),
+      ),
     );
   }
 }

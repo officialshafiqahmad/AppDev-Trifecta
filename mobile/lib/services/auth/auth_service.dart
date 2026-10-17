@@ -59,8 +59,9 @@ class SessionUser {
       };
 }
 
-/// Authentication service contract.
 abstract class AuthService {
+  SessionUser? get currentUser;
+
   Future<Result<SessionUser>> login({
     required String email,
     required String password,

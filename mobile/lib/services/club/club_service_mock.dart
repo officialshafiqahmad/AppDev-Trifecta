@@ -2,78 +2,80 @@ import '../../core/utils/result.dart';
 import '../cache/cache_service.dart';
 import 'club_service.dart';
 
-/// Mock ClubService with local cache.
+/// Mock ClubService with local cache and mutable in-memory roster.
 class ClubServiceMock implements ClubService {
   ClubServiceMock({required this.cacheService});
 
   final CacheService cacheService;
 
-  static final ClubProfile _mockClub = ClubProfile(
-    clubId: 'club-alpha-1',
-    tenantId: 'tenant-alpha',
-    name: 'Alpha FC',
-    venueName: 'A-01 Main Arena (Islamabad)',
-    venueLat: 33.6844,
-    venueLng: 73.0479,
-    staff: const [
-      StaffMember(name: 'Farhan Zaidi', role: 'Head Coach'),
-      StaffMember(name: 'Shafiq Ahmad', role: 'Club Manager'),
-      StaffMember(name: 'Dr. Bilal Qureshi', role: 'Physiotherapist'),
-    ],
-    roster: const [
-      Player(
-        playerId: 'player-alpha-1',
-        name: 'Tariq Al-Mansoor',
-        position: 'Forward / Striker',
-        role: 'Captain',
-        jerseyNumber: 9,
-      ),
-      Player(
-        playerId: 'player-alpha-2',
-        name: 'Hamza Malik',
-        position: 'Midfielder',
-        role: 'Vice Captain',
-        jerseyNumber: 8,
-      ),
-      Player(
-        playerId: 'player-alpha-3',
-        name: 'Zeeshan Arshad',
-        position: 'Defender (Centre Back)',
-        role: 'Player',
-        jerseyNumber: 4,
-      ),
-      Player(
-        playerId: 'player-alpha-4',
-        name: 'Danyal Khan',
-        position: 'Goalkeeper',
-        role: 'Player',
-        jerseyNumber: 1,
-      ),
-      Player(
-        playerId: 'player-alpha-5',
-        name: 'Usman Ghani',
-        position: 'Winger',
-        role: 'Player',
-        jerseyNumber: 11,
-      ),
-    ],
-  );
+  static final List<Player> _canonicalRoster = [
+    const Player(
+      playerId: 'player-alpha-1',
+      name: 'Marcus Rashford',
+      position: 'Forward / Striker',
+      role: 'Captain',
+      jerseyNumber: 10,
+      squadId: 'squad-alpha-1',
+    ),
+    const Player(
+      playerId: 'player-alpha-2',
+      name: 'Bruno Fernandes',
+      position: 'Midfielder',
+      role: 'Vice Captain',
+      jerseyNumber: 8,
+      squadId: 'squad-alpha-1',
+    ),
+    const Player(
+      playerId: 'player-alpha-3',
+      name: 'Rasmus Hojlund',
+      position: 'Forward / Striker',
+      role: 'Player',
+      jerseyNumber: 9,
+      squadId: 'squad-alpha-1',
+    ),
+    const Player(
+      playerId: 'player-alpha-4',
+      name: 'Lisandro Martinez',
+      position: 'Defender (Centre Back)',
+      role: 'Player',
+      jerseyNumber: 6,
+      squadId: 'squad-alpha-1',
+    ),
+    const Player(
+      playerId: 'player-alpha-5',
+      name: 'Andre Onana',
+      position: 'Goalkeeper',
+      role: 'Player',
+      jerseyNumber: 1,
+      squadId: 'squad-alpha-1',
+    ),
+  ];
+
+  static final List<StaffMember> _canonicalStaff = [
+    const StaffMember(name: 'Erik ten Hag', role: 'Head Coach'),
+    const StaffMember(name: 'Shafiq Ahmad', role: 'Club Operations Manager'),
+    const StaffMember(name: 'Dr. Bilal Qureshi', role: 'Physiotherapist'),
+  ];
+
+  void addPlayerLocally(Player player) {
+    _canonicalRoster.add(player);
+  }
 
   @override
   Future<Result<ClubProfile>> getClubProfile(String clubId) async {
-    final cacheKey = 'cache_club_profile_$clubId';
+    final profile = ClubProfile(
+      clubId: clubId,
+      tenantId: 'tenant-alpha',
+      tenantName: 'Punjab FA / Lahore District League',
+      name: 'Lahore FC',
+      venueName: 'A-01 Main Arena',
+      venueAddress: 'Lahore',
+      venueLat: 31.5204,
+      venueLng: 74.3587,
+      staff: _canonicalStaff,
+      roster: List.unmodifiable(_canonicalRoster),
+    );
 
-    // 1. Try cache
-    try {
-      final cachedRes = await cacheService.get(cacheKey);
-      final cached = cachedRes.dataOrNull;
-      if (cached != null) {
-        return Success(ClubProfile.fromJson(cached));
-      }
-    } catch (_) {}
-
-    // 2. Fallback to mock and save to cache
-    await cacheService.put(cacheKey, _mockClub.toJson());
-    return Success(_mockClub);
+    return Success(profile);
   }
 }

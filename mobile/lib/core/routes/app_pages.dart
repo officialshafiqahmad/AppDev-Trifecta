@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../features/auth/binding/auth_binding.dart';
 import '../../features/auth/view/login_view.dart';
+import '../../features/auth/view/role_select_view.dart';
 import '../../features/club_profile/binding/club_profile_binding.dart';
 import '../../features/club_profile/view/club_profile_view.dart';
 import '../../features/main_nav/binding/main_nav_binding.dart';
@@ -19,18 +20,28 @@ import '../../features/sync_status/view/sync_status_view.dart';
 import '../constants/app_sizes.dart';
 import 'app_routes.dart';
 
+import '../../services/auth/auth_service.dart';
+import 'role_guard.dart';
+
 /// Central page registry linking all routes to their views and bindings.
 abstract final class AppPages {
   static const AppSizes _sizes = AppSizes();
 
-  static const String initial = AppRoutes.login;
+  static const String initial = AppRoutes.roleSelect;
 
   static final List<GetPage<dynamic>> pages = [
+    GetPage<dynamic>(
+      name: AppRoutes.roleSelect,
+      page: () => const RoleSelectView(),
+      binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: _sizes.motionFast,
+    ),
     GetPage<dynamic>(
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: AuthBinding(),
-      transition: Transition.fadeIn,
+      transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionFast,
     ),
     GetPage<dynamic>(
@@ -58,6 +69,15 @@ abstract final class AppPages {
       name: AppRoutes.rosterManage,
       page: () => const RosterManageView(),
       binding: RosterManageBinding(),
+      middlewares: [
+        RoleGuardMiddleware(
+          allowedRoles: const [
+            UserRole.superAdmin,
+            UserRole.organizer,
+            UserRole.clubManager,
+          ],
+        ),
+      ],
       transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionNormal,
     ),
@@ -65,6 +85,14 @@ abstract final class AppPages {
       name: AppRoutes.scoringEntry,
       page: () => const ScoringEntryView(),
       binding: ScoringEntryBinding(),
+      middlewares: [
+        RoleGuardMiddleware(
+          allowedRoles: const [
+            UserRole.superAdmin,
+            UserRole.organizer,
+          ],
+        ),
+      ],
       transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionNormal,
     ),

@@ -51,8 +51,15 @@ abstract final class AppStrings {
   static const loginPasswordLabel = 'login_password_label';
   static const loginButton = 'login_button';
   static const loginQuickAccounts = 'login_quick_accounts';
+  static const loginDemoSection = 'login_demo_section';
+  static const loginOrCredentials = 'login_or_credentials';
   static const loginInvalidCreds = 'login_invalid_creds';
   static const logoutButton = 'logout_button';
+  static const roleSelectTitle = 'role_select_title';
+  static const roleSelectSubtitle = 'role_select_subtitle';
+  static const roleSelectCustom = 'role_select_custom';
+  static const roleChange = 'role_change';
+  static const roleSelected = 'role_selected';
 
   // Roles
   static const roleAdmin = 'role_admin';
@@ -92,6 +99,8 @@ abstract final class AppStrings {
   static const statusClinched = 'status_clinched';
   static const statusEliminated = 'status_eliminated';
   static const statusPossible = 'status_possible';
+  static const standingsSelectLeague = 'standings_select_league';
+  static const standingsMatchesForTeam = 'standings_matches_for_team';
 
   // Club Profile
   static const clubProfileTitle = 'club_profile_title';
@@ -114,6 +123,11 @@ abstract final class AppStrings {
   static const storeApplyCode = 'store_apply_code';
   static const storeSelectVariant = 'store_select_variant';
   static const storePaymentOption = 'store_payment_option';
+  static const storePaymentCash = 'store_payment_cash';
+  static const storePaymentCard = 'store_payment_card';
+  static const storePaymentClubCredit = 'store_payment_club_credit';
+  static const storeOfflineCheckoutError = 'store_offline_checkout_error';
+  static const storeLowStockWarning = 'store_low_stock_warning';
   static const storeConfirmPayment = 'store_confirm_payment';
   static const storeConfirmDialogBody = 'store_confirm_dialog_body';
   static const storeReceiptTitle = 'store_receipt_title';
@@ -135,6 +149,12 @@ abstract final class AppStrings {
   static const rosterReleaseBody = 'roster_release_body';
   static const rosterHistoryTitle = 'roster_history_title';
   static const rosterHistoryEmpty = 'roster_history_empty';
+  static const rosterAddPlayer = 'roster_add_player';
+  static const rosterPlayerName = 'roster_player_name';
+  static const rosterPosition = 'roster_position';
+  static const rosterJerseyNumber = 'roster_jersey_number';
+  static const rosterAddPlayerSubmit = 'roster_add_player_submit';
+  static const rosterAddPlayerSuccess = 'roster_add_player_success';
 
   // Scoring Entry
   static const scoringTitle = 'scoring_title';
@@ -142,6 +162,7 @@ abstract final class AppStrings {
   static const scoringCompensate = 'scoring_compensate';
   static const scoringSelectTeam = 'scoring_select_team';
   static const scoringSelectEvent = 'scoring_select_event';
+  static const scoringMinuteLabel = 'scoring_minute_label';
   static const scoringPlayerOrDetail = 'scoring_player_or_detail';
   static const scoringCompensateSelect = 'scoring_compensate_select';
   static const scoringCompensateReason = 'scoring_compensate_reason';
@@ -149,10 +170,14 @@ abstract final class AppStrings {
   static const scoringSubmitUndo = 'scoring_submit_undo';
   static const scoringCompensateConfirm = 'scoring_compensate_confirm';
   static const scoringCompensateConfirmBody = 'scoring_compensate_confirm_body';
+  static const scoringUndoWarning = 'scoring_undo_warning';
+  static const scoringNotLiveError = 'scoring_not_live_error';
 
   // Settings
   static const settingsTitle = 'settings_title';
   static const settingsServerAddress = 'settings_server_address';
+  static const settingsServerAddressCaption = 'settings_server_address_caption';
+  static const settingsPortCaption = 'settings_port_caption';
   static const settingsDeviceId = 'settings_device_id';
   static const settingsCacheTitle = 'settings_cache_title';
   static const settingsClearCache = 'settings_clear_cache';
@@ -244,8 +269,15 @@ class AppTranslations extends Translations {
           AppStrings.loginPasswordLabel: 'Password',
           AppStrings.loginButton: 'Sign In',
           AppStrings.loginQuickAccounts: 'Demo Accounts (Quick Select)',
+          AppStrings.loginDemoSection: 'Tap any demo account to sign in immediately',
+          AppStrings.loginOrCredentials: 'or sign in with credentials',
           AppStrings.loginInvalidCreds: 'Invalid email or password. Please use a demo account.',
           AppStrings.logoutButton: 'Sign Out',
+          AppStrings.roleSelectTitle: 'Select Your Role',
+          AppStrings.roleSelectSubtitle: 'Choose your operational role to access your workspace',
+          AppStrings.roleSelectCustom: 'Sign In with Custom Email',
+          AppStrings.roleChange: 'Switch Role',
+          AppStrings.roleSelected: 'Active Role',
 
           // Roles
           AppStrings.roleAdmin: 'Platform Super-Admin',
@@ -285,6 +317,8 @@ class AppTranslations extends Translations {
           AppStrings.statusClinched: 'Clinched',
           AppStrings.statusEliminated: 'Eliminated',
           AppStrings.statusPossible: 'Still possible',
+          AppStrings.standingsSelectLeague: 'League Competition',
+          AppStrings.standingsMatchesForTeam: 'Team Matches',
 
           // Club Profile
           AppStrings.clubProfileTitle: 'Club Profile',
@@ -307,6 +341,11 @@ class AppTranslations extends Translations {
           AppStrings.storeApplyCode: 'Apply',
           AppStrings.storeSelectVariant: 'Select Size / Variant',
           AppStrings.storePaymentOption: 'Payment Method',
+          AppStrings.storePaymentCash: 'Cash at Ground',
+          AppStrings.storePaymentCard: 'Card (Stripe Mock)',
+          AppStrings.storePaymentClubCredit: 'Club Credit',
+          AppStrings.storeOfflineCheckoutError: 'Checkout requires an active internet connection to process payment.',
+          AppStrings.storeLowStockWarning: 'Only 1 left in stock!',
           AppStrings.storeConfirmPayment: 'Pay & Place Order',
           AppStrings.storeConfirmDialogBody: 'Confirm payment for your order? Mock gateway authorization will be processed.',
           AppStrings.storeReceiptTitle: 'Order Receipt',
@@ -328,6 +367,12 @@ class AppTranslations extends Translations {
           AppStrings.rosterReleaseBody: 'Are you sure you want to release this player? This action will remove them from active registration.',
           AppStrings.rosterHistoryTitle: 'Player Audit Trail',
           AppStrings.rosterHistoryEmpty: 'No recorded transfer history.',
+          AppStrings.rosterAddPlayer: 'Add Player',
+          AppStrings.rosterPlayerName: 'Player Name',
+          AppStrings.rosterPosition: 'Position',
+          AppStrings.rosterJerseyNumber: 'Jersey Number',
+          AppStrings.rosterAddPlayerSubmit: 'Register Player to Squad',
+          AppStrings.rosterAddPlayerSuccess: 'Player added to squad successfully.',
 
           // Scoring Entry
           AppStrings.scoringTitle: 'Scoring Control',
@@ -335,6 +380,7 @@ class AppTranslations extends Translations {
           AppStrings.scoringCompensate: 'Compensating Event (Undo)',
           AppStrings.scoringSelectTeam: 'Scoring Team',
           AppStrings.scoringSelectEvent: 'Event Type',
+          AppStrings.scoringMinuteLabel: 'Match Minute',
           AppStrings.scoringPlayerOrDetail: 'Player / Notation Details',
           AppStrings.scoringCompensateSelect: 'Event to Compensate',
           AppStrings.scoringCompensateReason: 'Reason for Correction',
@@ -342,10 +388,14 @@ class AppTranslations extends Translations {
           AppStrings.scoringSubmitUndo: 'Append Compensation Event',
           AppStrings.scoringCompensateConfirm: 'Confirm Correction',
           AppStrings.scoringCompensateConfirmBody: 'This will append an audit compensation entry to offset the selected event. Events are never deleted.',
+          AppStrings.scoringUndoWarning: 'Compensating appends an audit reversal; events are never deleted.',
+          AppStrings.scoringNotLiveError: 'This match is not in progress. Scores can only be entered during live play.',
 
           // Settings
           AppStrings.settingsTitle: 'Settings & Connectivity',
           AppStrings.settingsServerAddress: 'Server Address (Host:Port)',
+          AppStrings.settingsServerAddressCaption: 'Default: 10.0.2.2:8080 (Android emulator host)',
+          AppStrings.settingsPortCaption: 'Port: 8080 (fixed)',
           AppStrings.settingsDeviceId: 'Client Device ID',
           AppStrings.settingsCacheTitle: 'Local Database Cache',
           AppStrings.settingsClearCache: 'Clear Cached Data',
