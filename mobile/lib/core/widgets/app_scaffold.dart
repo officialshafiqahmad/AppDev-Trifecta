@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../theme/theme_ext.dart';
+import 'sync_indicator.dart';
 
 /// The standard scaffold for all application screens.
 /// Enforces safe area, content centering, max content width (640),
-/// and responsive screen padding.
+/// responsive padding, and the ALWAYS-VISIBLE sync status indicator.
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
     super.key,
@@ -17,6 +18,7 @@ class AppScaffold extends StatelessWidget {
     this.leading,
     this.floatingActionButton,
     this.bottomNavigationBar,
+    this.showSyncIndicator = true,
   });
 
   final Widget body;
@@ -27,13 +29,19 @@ class AppScaffold extends StatelessWidget {
   final Widget? leading;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
+  final bool showSyncIndicator;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final sizes = context.sizes;
     final textStyles = context.text;
-    final hasAppBar = titleKey != null || titleWidget != null;
+    final hasAppBar = titleKey != null || titleWidget != null || showSyncIndicator;
+
+    final effectiveActions = <Widget>[
+      if (actions != null) ...actions!,
+      if (showSyncIndicator) const SyncIndicator(),
+    ];
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -47,11 +55,13 @@ class AppScaffold extends StatelessWidget {
               centerTitle: false,
               leading: leading,
               title: titleWidget ??
-                  Text(
-                    titleKey!.tr,
-                    style: titleStyle ?? textStyles.titleLg,
-                  ),
-              actions: actions,
+                  (titleKey != null
+                      ? Text(
+                          titleKey!.tr,
+                          style: titleStyle ?? textStyles.titleLg,
+                        )
+                      : null),
+              actions: effectiveActions,
             ),
       body: SafeArea(
         child: LayoutBuilder(
