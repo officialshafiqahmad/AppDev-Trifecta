@@ -183,8 +183,8 @@ async function createSport(pool, config) {
     return { exists: true };
   }
   await pool.query(
-    `INSERT INTO sports (sport_id, name, scoring_model, config, is_baseline)
-     VALUES ($1, $2, $3, $4::jsonb, FALSE)`,
+    `INSERT INTO sports (sport_id, name, scoring_model, config)
+     VALUES ($1, $2, $3, $4::jsonb)`,
     [config.sport_id, config.name, config.scoring_model, JSON.stringify(config)]
   );
   return { exists: false };

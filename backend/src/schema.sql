@@ -1,0 +1,94 @@
+CREATE TABLE IF NOT EXISTS meta (
+  id INTEGER PRIMARY KEY,
+  lots_seed INTEGER NOT NULL,
+  baseline_ready BOOLEAN NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sports (
+  sport_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  scoring_model TEXT NOT NULL,
+  config JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tenants (
+  tenant_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  product_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL REFERENCES tenants(tenant_id),
+  name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS variants (
+  variant_id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL REFERENCES products(product_id),
+  price_minor INTEGER NOT NULL,
+  currency TEXT NOT NULL,
+  stock INTEGER NOT NULL,
+  reserved INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS discount_codes (
+  code TEXT PRIMARY KEY,
+  percent INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS leagues (
+  league_id TEXT PRIMARY KEY,
+  tenant_id TEXT,
+  name TEXT,
+  sport_id TEXT,
+  config JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+
+CREATE TABLE IF NOT EXISTS clubs (
+  club_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL REFERENCES tenants(tenant_id),
+  name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS players (
+  player_id TEXT PRIMARY KEY,
+  club_id TEXT NOT NULL REFERENCES clubs(club_id),
+  name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  user_id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL,
+  tenant_id TEXT,
+  league_id TEXT,
+  club_id TEXT,
+  player_id TEXT
+);
+
+CREATE TABLE IF NOT EXISTS matches (
+  match_id TEXT PRIMARY KEY,
+  league_id TEXT,
+  sport_id TEXT NOT NULL,
+  home_team_id TEXT NOT NULL,
+  away_team_id TEXT NOT NULL,
+  source TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS match_events (
+  event_id TEXT PRIMARY KEY,
+  match_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  sequence INTEGER NOT NULL,
+  signature TEXT NOT NULL,
+  request_hash TEXT NOT NULL,
+  response JSONB NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS match_events_match_seq ON match_events (match_id, sequence);
+
+ALTER TABLE leagues ALTER COLUMN tenant_id DROP NOT NULL;
+ALTER TABLE leagues ADD COLUMN IF NOT EXISTS sport_id TEXT;
+ALTER TABLE leagues ADD COLUMN IF NOT EXISTS config JSONB NOT NULL DEFAULT '{}'::jsonb;

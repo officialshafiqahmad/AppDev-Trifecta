@@ -3,6 +3,8 @@ const { sendError } = require('./errors');
 const { validateSport } = require('./sports');
 const { validateReset, applyReset } = require('./baseline');
 const { databaseReady } = require('./db');
+const { validateLeague, createLeague } = require('./leagues');
+const { appendEvent, getScore } = require('./scoring');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -81,6 +83,50 @@ function createApp(pool) {
         status: 'created',
         config,
       });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/leagues', async (req, res, next) => {
+    try {
+      const parsed = validateLeague(req.body);
+      if (!parsed.ok) {
+        sendError(res, 400, 'VALIDATION_ERROR', 'Request validation failed.', { fields: parsed.fields });
+        return;
+      }
+      const result = await createLeague(pool, parsed.league);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(201).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/events', async (req, res, next) => {
+    try {
+      const result = await appendEvent(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/score/:match_id', async (req, res, next) => {
+    try {
+      const result = await getScore(pool, req.params.match_id);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
     } catch (error) {
       next(error);
     }
