@@ -11,7 +11,7 @@ class SettingsServiceImpl implements SettingsService {
 
   static const String _keyHost = 'settings_server_host';
   static const String _keyDeviceId = 'settings_device_id';
-  static const String _defaultHost = '10.0.2.2';
+  static const String _defaultHost = 'https://astjq-203-99-61-238.free.pinggy.net';
   static const int _fixedPort = 8080;
   static const String _defaultDeviceId = 'dev-1';
 
@@ -48,7 +48,7 @@ class SettingsServiceImpl implements SettingsService {
 
   @override
   Future<Result<void>> updateServerHost(String host) async {
-    final cleanHost = host.trim().replaceAll(RegExp(r'^https?://'), '').split(':').first;
+    final cleanHost = host.trim().replaceAll(RegExp(r'/+$'), '');
     return storageService.setString(_keyHost, cleanHost);
   }
 

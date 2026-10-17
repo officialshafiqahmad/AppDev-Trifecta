@@ -12,7 +12,13 @@ class ServerSettings {
   final int port;
   final String deviceId;
 
-  String get baseUrl => 'http://$host:$port';
+  String get baseUrl {
+    final clean = host.trim().replaceAll(RegExp(r'/+$'), '');
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return clean;
+    }
+    return 'http://$clean:$port';
+  }
 }
 
 /// Settings service contract.

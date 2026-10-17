@@ -1,4 +1,4 @@
-package com.example.trifecta
+package com.trifecta.app
 
 import io.flutter.embedding.android.FlutterActivity
 
