@@ -9,7 +9,7 @@ import '../../../core/widgets/loading_overlay.dart';
 import '../controller/store_controller.dart';
 import '../widgets/product_card.dart';
 
-/// Dumb layout view for Store catalogue screen adhering to rules C21 and C22.
+/// Catalogue view for Store screen adhering strictly to DESIGN_RULES.md and Rule C22.
 class StoreView extends GetView<StoreController> {
   const StoreView({super.key});
 
@@ -43,8 +43,8 @@ class StoreView extends GetView<StoreController> {
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.only(
-                top: sizes.lg,
-                bottom: hasCart ? sizes.giant * 2 : sizes.xl,
+                top: sizes.md,
+                bottom: hasCart ? 96 : sizes.xl,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -67,79 +67,88 @@ class StoreView extends GetView<StoreController> {
             ),
           ),
 
-          // Rule C22: Floating Cart Bar with slide-in animation
+          // Rule C22: Floating Cart Bar with bag icon, "View cart", and the cart total price on the right
           AnimatedPositioned(
             duration: sizes.motionNormal,
             curve: sizes.curveDefault,
             left: 0,
             right: 0,
-            bottom: hasCart ? sizes.lg : -100,
+            bottom: hasCart ? sizes.md : -100,
             child: hasCart
-                ? Container(
-                    decoration: BoxDecoration(
-                      color: colors.surface,
+                ? Material(
+                    color: colors.surface,
+                    borderRadius: BorderRadius.circular(sizes.radiusLg),
+                    child: InkWell(
+                      onTap: controller.openCart,
                       borderRadius: BorderRadius.circular(sizes.radiusLg),
-                      border: Border.all(color: colors.primary, width: 1.5),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: sizes.cardPadding,
-                      vertical: sizes.sm + 2,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(sizes.sm),
-                          decoration: BoxDecoration(
-                            color: colors.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.shopping_bag_outlined,
-                            size: sizes.iconSm,
-                            color: colors.primary,
-                          ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: colors.border),
+                          borderRadius: BorderRadius.circular(sizes.radiusLg),
                         ),
-                        SizedBox(width: sizes.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${controller.cartItems.length} items in cart',
-                                style: textStyles.labelMd.copyWith(color: colors.textSecondary),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: sizes.cardPadding,
+                          vertical: sizes.sm + 4,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: colors.primaryContainer,
+                                borderRadius: BorderRadius.circular(sizes.radiusMd),
                               ),
-                              Text(
-                                controller.formattedTotal,
-                                style: textStyles.titleLg.copyWith(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.bold,
+                              child: Icon(
+                                Icons.shopping_bag_outlined,
+                                size: sizes.iconSm,
+                                color: colors.primary,
+                              ),
+                            ),
+                            SizedBox(width: sizes.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    AppStrings.storeViewCart.tr,
+                                    style: textStyles.titleMd.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(height: sizes.xxs),
+                                  Text(
+                                    '${controller.cartItems.length} ${controller.cartItems.length == 1 ? "item" : "items"} in cart',
+                                    style: textStyles.caption.copyWith(
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  controller.formattedTotal,
+                                  style: textStyles.titleLg.copyWith(
+                                    color: colors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                            SizedBox(width: sizes.xs),
+                            Icon(
+                              Icons.chevron_right_outlined,
+                              size: sizes.iconSm,
+                              color: colors.textSecondary,
+                            ),
+                          ],
                         ),
-                        FilledButton(
-                          onPressed: controller.openCart,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(sizes.radiusMd),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: sizes.lg,
-                              vertical: sizes.sm,
-                            ),
-                          ),
-                          child: Text(
-                            'View Cart',
-                            style: textStyles.labelLg.copyWith(
-                              color: colors.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   )
                 : const SizedBox.shrink(),

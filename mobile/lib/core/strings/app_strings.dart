@@ -126,6 +126,20 @@ abstract final class AppStrings {
   static const storePaymentCash = 'store_payment_cash';
   static const storePaymentCard = 'store_payment_card';
   static const storePaymentClubCredit = 'store_payment_club_credit';
+  static const storePaymentSucceeds = 'store_payment_succeeds';
+  static const storePaymentDeclined = 'store_payment_declined';
+  static const storePaymentCaptureFail = 'store_payment_capture_fail';
+  static const storePaymentSucceedsDesc = 'store_payment_succeeds_desc';
+  static const storePaymentDeclinedDesc = 'store_payment_declined_desc';
+  static const storePaymentCaptureFailDesc = 'store_payment_capture_fail_desc';
+  static const storeDiscountCodeHint = 'store_discount_code_hint';
+  static const storeDiscountApplied = 'store_discount_applied';
+  static const storePaymentSuccessful = 'store_payment_successful';
+  static const storePaymentSuccessDesc = 'store_payment_success_desc';
+  static const storeQuantity = 'store_quantity';
+  static const storeViewCart = 'store_view_cart';
+  static const storeItemsInCart = 'store_items_in_cart';
+  static const storeSoldOut = 'store_sold_out';
   static const storeOfflineCheckoutError = 'store_offline_checkout_error';
   static const storeLowStockWarning = 'store_low_stock_warning';
   static const storeConfirmPayment = 'store_confirm_payment';
@@ -344,6 +358,20 @@ class AppTranslations extends Translations {
           AppStrings.storePaymentCash: 'Cash at Ground',
           AppStrings.storePaymentCard: 'Card (Stripe Mock)',
           AppStrings.storePaymentClubCredit: 'Club Credit',
+          AppStrings.storePaymentSucceeds: 'Mock card — payment succeeds',
+          AppStrings.storePaymentDeclined: 'Mock card — payment is declined',
+          AppStrings.storePaymentCaptureFail: 'Mock card — payment fails after approval',
+          AppStrings.storePaymentSucceedsDesc: 'Instant debit/credit authorization and capture',
+          AppStrings.storePaymentDeclinedDesc: 'Simulates card decline error (402)',
+          AppStrings.storePaymentCaptureFailDesc: 'Simulates capture failure after approval (402)',
+          AppStrings.storeDiscountCodeHint: 'Enter discount code',
+          AppStrings.storeDiscountApplied: 'WELCOME10 applied — 10% off',
+          AppStrings.storePaymentSuccessful: 'Payment successful',
+          AppStrings.storePaymentSuccessDesc: 'Your mock order and receipt have been processed.',
+          AppStrings.storeQuantity: 'Quantity',
+          AppStrings.storeViewCart: 'View Cart',
+          AppStrings.storeItemsInCart: 'items in cart',
+          AppStrings.storeSoldOut: 'Sold Out',
           AppStrings.storeOfflineCheckoutError: 'Checkout requires an active internet connection to process payment.',
           AppStrings.storeLowStockWarning: 'Only 1 left in stock!',
           AppStrings.storeConfirmPayment: 'Pay & Place Order',

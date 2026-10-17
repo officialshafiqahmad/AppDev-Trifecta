@@ -39,8 +39,8 @@ class StoreController extends GetxController {
   final TextEditingController discountController = TextEditingController();
   final RxString appliedDiscount = ''.obs;
 
-  // Rule C23 & A7: 3 Radio payment methods (default to tok_cash or tok_success)
-  final RxString paymentToken = 'tok_cash'.obs;
+  // Rule C23 & A7: 3 Radio payment methods (default to tok_success)
+  final RxString paymentToken = 'tok_success'.obs;
 
   final Rx<CheckoutResult?> lastReceipt = Rx<CheckoutResult?>(null);
 
@@ -79,16 +79,17 @@ class StoreController extends GetxController {
     AppSheet.show(
       child: VariantPickerSheet(
         product: product,
-        onSelectVariant: (variant) {
-          addToCart(product, variant);
-          Get.back();
-        },
       ),
     );
   }
 
   /// Rule G5: Check variant stock before adding to cart
   void addToCart(Product product, ProductVariant variant) {
+    addToCartWithQty(product, variant, 1);
+  }
+
+  /// Adds a specific quantity of a product variant to cart
+  void addToCartWithQty(Product product, ProductVariant variant, int qty) {
     if (variant.stock <= 0) {
       AppSnackbar.error(AppStrings.errOutOfStock);
       return;
@@ -100,14 +101,18 @@ class StoreController extends GetxController {
 
     if (existingIndex != -1) {
       final currentQty = cartItems[existingIndex].quantity;
-      if (currentQty + 1 > variant.stock) {
+      if (currentQty + qty > variant.stock) {
         AppSnackbar.error(AppStrings.errOutOfStock);
         return;
       }
-      cartItems[existingIndex].quantity += 1;
+      cartItems[existingIndex].quantity += qty;
       cartItems.refresh();
     } else {
-      cartItems.add(CartItem(product: product, variant: variant, quantity: 1));
+      if (qty > variant.stock) {
+        AppSnackbar.error(AppStrings.errOutOfStock);
+        return;
+      }
+      cartItems.add(CartItem(product: product, variant: variant, quantity: qty));
     }
 
     _currentOrderId = null; // Cart changed, generate new order_id on checkout
@@ -177,6 +182,12 @@ class StoreController extends GetxController {
       _currentOrderId = null;
       AppSnackbar.error(AppStrings.errInvalidDiscountCode);
     }
+  }
+
+  void clearDiscount() {
+    appliedDiscount.value = '';
+    discountController.clear();
+    _currentOrderId = null;
   }
 
   void openCart() {
