@@ -5,6 +5,7 @@ const { validateReset, applyReset } = require('./baseline');
 const { databaseReady } = require('./db');
 const { validateLeague, createLeague } = require('./leagues');
 const { appendEvent, getScore } = require('./scoring');
+const { checkout, getInventory } = require('./store');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -114,6 +115,32 @@ function createApp(pool) {
         return;
       }
       res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/checkout', async (req, res, next) => {
+    try {
+      const result = await checkout(pool, req.body, req.app.locals.redis);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/inventory/:variant_id', async (req, res, next) => {
+    try {
+      const result = await getInventory(pool, req.params.variant_id);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
     } catch (error) {
       next(error);
     }
