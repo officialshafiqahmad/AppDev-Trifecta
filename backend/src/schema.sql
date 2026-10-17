@@ -89,6 +89,21 @@ CREATE TABLE IF NOT EXISTS match_events (
 
 CREATE UNIQUE INDEX IF NOT EXISTS match_events_match_seq ON match_events (match_id, sequence);
 
+CREATE TABLE IF NOT EXISTS orders (
+  order_id TEXT PRIMARY KEY,
+  request_hash TEXT NOT NULL,
+  status TEXT NOT NULL,
+  http_status INTEGER NOT NULL,
+  response JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS domain_events (
+  id BIGSERIAL PRIMARY KEY,
+  topic TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 ALTER TABLE leagues ALTER COLUMN tenant_id DROP NOT NULL;
 ALTER TABLE leagues ADD COLUMN IF NOT EXISTS sport_id TEXT;
 ALTER TABLE leagues ADD COLUMN IF NOT EXISTS config JSONB NOT NULL DEFAULT '{}'::jsonb;

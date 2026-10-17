@@ -180,6 +180,7 @@ async function applyReset(pool, { seed, stock }) {
     await client.query('BEGIN');
     await client.query(`
       TRUNCATE TABLE
+        domain_events, orders,
         match_events, matches,
         users, players, clubs, leagues,
         discount_codes, variants, products, tenants,
