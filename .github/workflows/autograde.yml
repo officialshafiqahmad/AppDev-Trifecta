@@ -56,5 +56,10 @@ jobs:
 
       - name: k6 smoke
         run: |
-          docker run --rm --network host -v "$PWD:/scripts" grafana/k6:0.54.0 \
+          mkdir -p tests/reports
+          docker run --rm --network host \
+            --user "$(id -u):$(id -g)" \
+            -e HOME=/tmp \
+            -v "$PWD:/scripts" \
+            grafana/k6:0.54.0 \
             run --summary-export=/scripts/tests/reports/k6-summary.json /scripts/tests/k6_load.js

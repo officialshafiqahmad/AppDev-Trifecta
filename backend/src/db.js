@@ -4,7 +4,9 @@ const { Pool } = require('pg');
 const { applyReset, DEFAULT_STOCK } = require('./baseline');
 
 function createPool() {
-  return new Pool({ connectionString: process.env.DATABASE_URL });
+  const requested = Number(process.env.PG_POOL_MAX || 30);
+  const max = Number.isInteger(requested) && requested > 0 ? requested : 30;
+  return new Pool({ connectionString: process.env.DATABASE_URL, max });
 }
 
 function sleep(ms) {

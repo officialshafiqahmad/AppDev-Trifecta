@@ -147,7 +147,24 @@ async function recordScan(client, row, userAgent) {
   return updated.rows[0].scan_count;
 }
 
+async function inspectExistingQr(pool, entityId) {
+  const client = await pool.connect();
+  try {
+    const existing = await client.query('SELECT * FROM qr_links WHERE entity_id = $1', [entityId]);
+    if (existing.rowCount !== 1) return null;
+    const row = existing.rows[0];
+    const status = await entityStatus(client, row);
+    return { status: 200, body: qrBody(row, status, row.scan_count) };
+  } finally {
+    client.release();
+  }
+}
+
 async function resolveQr(pool, entityId, { inspect, userAgent }) {
+  if (inspect) {
+    const inspected = await inspectExistingQr(pool, entityId);
+    if (inspected) return inspected;
+  }
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

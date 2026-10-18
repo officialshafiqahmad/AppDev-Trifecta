@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { sign } = require("./canonical");
+const { publishScore } = require("./day2/score-bus");
 const { validateId, isPlainObject, isInt } = require("./leagues");
 
 const EVENT_TYPES = new Set([
@@ -335,6 +336,12 @@ async function appendEvent(pool, body) {
       [body.event_id, body.match_id, body.type, JSON.stringify(payload), sequence, signature, hash, JSON.stringify(response)]
     );
     await client.query("COMMIT");
+    try {
+      const projected = await getScore(pool, body.match_id);
+      if (!projected.error) publishScore(body.match_id, projected.body);
+    } catch (_error) {
+      // The stored event remains valid if a subscriber cannot be notified.
+    }
     return { status: 201, body: response };
   } catch (error) {
     await client.query("ROLLBACK");

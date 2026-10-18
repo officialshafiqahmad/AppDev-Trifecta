@@ -169,7 +169,9 @@ async function handleModeration(pool, body) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`dlq:${parsed.chat_room_id}`]);
+    if (parsed.simulate_failed_notifications > 0) {
+      await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`dlq:${parsed.chat_room_id}`]);
+    }
     for (let index = 0; index < parsed.simulate_failed_notifications; index += 1) {
       await client.query(
         `INSERT INTO notification_dlq (chat_room_id, payload) VALUES ($1, $2::jsonb)`,

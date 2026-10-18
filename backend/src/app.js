@@ -20,6 +20,7 @@ const { handleModeration } = require('./day2/moderation');
 const { renderMetrics } = require('./day2/metrics');
 const { eraseUser } = require('./day2/privacy');
 const { handleGuestPage } = require('./day2/web');
+const { subscribeScore } = require('./day2/score-bus');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -50,6 +51,9 @@ function createApp(pool) {
   });
 
   const webRoot = process.env.WEB_ROOT || path.resolve(__dirname, '../../web');
+  if (fs.existsSync(webRoot)) {
+    app.use('/web', express.static(webRoot));
+  }
   app.get('/web/matches/:matchId/live', (req, res, next) => {
     handleGuestPage(pool, res, {
       title: `Live ${req.params.matchId}`,
@@ -81,9 +85,28 @@ function createApp(pool) {
       playbackUrl: `http://localhost:8888/costream/${req.params.sessionId}/index.m3u8`,
     }).catch(next);
   });
-  if (fs.existsSync(webRoot)) {
-    app.use('/web', express.static(webRoot));
-  }
+  app.get('/api/v1/matches/:match_id/stream', async (req, res, next) => {
+    try {
+      const score = await getScore(pool, req.params.match_id);
+      if (score.error) {
+        sendError(res, score.error.status, score.error.code, score.error.message, score.error.details);
+        return;
+      }
+      res.status(200);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.flushHeaders();
+      const send = (body) => {
+        res.write(`data: ${JSON.stringify(body)}\n\n`);
+      };
+      send(score.body);
+      const unsubscribe = subscribeScore(req.params.match_id, send);
+      req.on('close', unsubscribe);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.get('/api/v1/ping', rateLimitApi(), (req, res) => {
     res.status(200).json({ pong: true });
