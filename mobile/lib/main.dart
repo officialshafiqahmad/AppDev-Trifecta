@@ -15,7 +15,7 @@ import 'services/auth/auth_service_impl.dart';
 /// Application entry point with session restoration.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final config = AppConfig.fromEnvironment();
+  final config = AppConfig.fromEnvironment(useRealApi: {'streaming': true, 'matchRead': true});
 
   // Deep Link Handling (nascon://entity/match-m1, nascon://stream/cs-session-101)
   String? initialDeepLinkUri;

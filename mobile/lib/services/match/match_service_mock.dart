@@ -164,6 +164,17 @@ class MatchServiceMock implements MatchService {
       version: 1,
       events: [],
     ),
+    // Added real data for match-m1 seeded score 1-0 (in_progress)
+    'match-m1': const ScoreProjection(
+      matchId: 'match-m1',
+      sportId: 'football',
+      status: 'in_progress',
+      outcome: 'pending',
+      home: TeamScore(teamId: 'club-alpha-1', teamName: 'Alpha FC', score: 1),
+      away: TeamScore(teamId: 'club-alpha-2', teamName: 'Beta Titans', score: 0),
+      version: 1,
+      events: const [],
+    ),
   };
 
   @override
