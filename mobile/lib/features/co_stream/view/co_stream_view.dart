@@ -20,6 +20,7 @@ class CoStreamView extends GetView<CoStreamController> {
     final textStyles = context.text;
 
     return AppScaffold(
+      showSyncIndicator: false,
       titleKey: null,
       titleWidget: Text(
         'Co-Stream Session',

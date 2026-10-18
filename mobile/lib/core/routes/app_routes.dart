@@ -12,4 +12,5 @@ abstract class AppRoutes {
   static const settings = '/settings';
   static const matchLive = '/match-live';
   static const coStream = '/co-stream';
+  static const qrScanner = '/qr-scanner';
 }

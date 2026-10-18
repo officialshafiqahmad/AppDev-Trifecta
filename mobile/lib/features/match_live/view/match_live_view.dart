@@ -21,6 +21,7 @@ class MatchLiveView extends GetView<MatchLiveController> {
     final textStyles = context.text;
 
     return AppScaffold(
+      showSyncIndicator: false,
       titleKey: null,
       titleWidget: Text(
         'Match Live',
@@ -117,10 +118,10 @@ class MatchLiveView extends GetView<MatchLiveController> {
                         color: colors.primary,
                       ),
                       SizedBox(height: sizes.sm),
-                      Text(
-                        'Live Broadcast Stream',
+                      Obx(() => Text(
+                        controller.streamStatusMessage.value,
                         style: textStyles.titleMd.copyWith(fontWeight: FontWeight.w600),
-                      ),
+                      )),
                       SizedBox(height: sizes.xxs),
                       Obx(() => Padding(
                             padding: EdgeInsets.symmetric(horizontal: sizes.md),
