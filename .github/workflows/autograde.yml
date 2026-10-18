@@ -34,7 +34,7 @@ jobs:
             -H 'Content-Type: application/json' -d '{}'
           curl -fsS http://localhost:8080/audit/v1/qr/match-m1?inspect=true
           curl -fsS http://localhost:8080/metrics
-          curl -fsS http://localhost:8080/web/matches/match-m1/live | grep -q 'data-testid="guest-video-player"'
+          curl -fsSL http://localhost:8080/web/matches/match-m1/live | grep -q 'data-testid="guest-video-player"'
 
       - name: Selenium Grid node verification
         run: |
