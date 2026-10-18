@@ -148,6 +148,19 @@ CREATE TABLE IF NOT EXISTS costream_sessions (
   chat_room_id TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS guest_merges (
+  guest_token TEXT PRIMARY KEY,
+  registered_user_id TEXT NOT NULL,
+  cart_hash TEXT NOT NULL,
+  response JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS notification_dlq (
+  id BIGSERIAL PRIMARY KEY,
+  chat_room_id TEXT NOT NULL,
+  payload JSONB NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS qr_scan_buckets (
   entity_id TEXT NOT NULL,
   device_family TEXT NOT NULL,

@@ -15,7 +15,8 @@ node --test --test-concurrency=1 \
   backend/test/store.unit.test.js \
   backend/test/rbac.unit.test.js \
   backend/test/day2-sign.test.js \
-  backend/test/day2-phase2.unit.test.js
+  backend/test/day2-phase2.unit.test.js \
+  backend/test/day2-guest.unit.test.js
 
 if ! curl -sf http://127.0.0.1:8080/health >/dev/null; then
   echo "GET /health is not ready on port 8080." >&2
@@ -30,4 +31,5 @@ node --test --test-concurrency=1 \
   backend/test/module3.http.test.js \
   backend/test/module4.http.test.js \
   backend/test/module5.http.test.js \
-  backend/test/day2.http.test.js
+  backend/test/day2.http.test.js \
+  backend/test/day2-guest.http.test.js
