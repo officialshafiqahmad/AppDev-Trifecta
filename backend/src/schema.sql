@@ -107,3 +107,23 @@ CREATE TABLE IF NOT EXISTS domain_events (
 ALTER TABLE leagues ALTER COLUMN tenant_id DROP NOT NULL;
 ALTER TABLE leagues ADD COLUMN IF NOT EXISTS sport_id TEXT;
 ALTER TABLE leagues ADD COLUMN IF NOT EXISTS config JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+CREATE TABLE IF NOT EXISTS qr_links (
+  entity_id TEXT PRIMARY KEY,
+  entity_type TEXT NOT NULL,
+  short_code TEXT NOT NULL UNIQUE,
+  short_url TEXT NOT NULL,
+  scan_count INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS guest_sessions (
+  guest_token TEXT PRIMARY KEY,
+  status TEXT NOT NULL,
+  merged BOOLEAN NOT NULL DEFAULT FALSE,
+  role TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_carts (
+  user_id TEXT PRIMARY KEY,
+  items JSONB NOT NULL
+);

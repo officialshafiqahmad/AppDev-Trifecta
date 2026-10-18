@@ -18,7 +18,7 @@ Official FR/NFR IDs from `docs/TRIFECTA_Part1_Full_Contract.txt` mapped to the s
 | NFR-7 | Reproducibility | `docker-compose.yml`, `backend/Dockerfile`, `backend/src/index.js`, `backend/src/db.js`, `backend/src/baseline.js` | `tests/http.test.js`, `backend/test/http.integration.test.js`, `./run_tests.sh` | Implemented. `DAY1_SALT=<salt> docker compose up -d --build` then `GET /health`. |
 | Section 5.3 | HMAC Appendix A | `backend/src/canonical.js` | `tests/canonical.test.js`, `backend/test/canonical.test.js` | Implemented. Vector 1 signature and vector 2 lots keys. |
 | Section 5.4 | `GET /health` | `backend/src/app.js` | `tests/http.test.js`, `backend/test/http.integration.test.js` | Implemented. |
-| Section 5.5 | `POST /audit/v1/reset` | `backend/src/baseline.js`, `backend/src/schema.sql` | `tests/http.test.js`, `backend/test/reset.test.js` | Implemented. Repeatable baseline plus five demo accounts. |
+| Section 5.5 | `POST /audit/v1/reset` | `backend/src/baseline.js`, `backend/src/schema.sql`, `backend/src/day2/baseline.js` | `tests/http.test.js`, `backend/test/reset.test.js`, `backend/test/day2-sign.test.js` | Implemented. Day 1 response body is unchanged. Reset also seeds `player-beta-2`, `match-m1` at 1-0 in progress, three QR short links, `guest_anon_tok_7721`, and an empty `player-alpha-1` cart. |
 | Section 5.6 | `POST /audit/v1/sports` | `backend/src/sports.js`, `backend/src/app.js` | `tests/validation.test.js`, `tests/http.test.js` | Implemented. |
 | Section 5.7 | `POST /audit/v1/fixtures` | none | none | **Not implemented.** |
 | Section 5.8 | `POST /audit/v1/leagues` | `backend/src/leagues.js` | `backend/test/module2.http.test.js` | Implemented. |
@@ -29,3 +29,11 @@ Official FR/NFR IDs from `docs/TRIFECTA_Part1_Full_Contract.txt` mapped to the s
 | Section 5.13 | RBAC matrix, probes, rate limit | `backend/src/rbac.js`, `backend/src/ratelimit.js` | `backend/test/module4.http.test.js` | Implemented. |
 | Section 5.14 | `POST /audit/v1/offline-sync` | none | none | **Not implemented.** |
 | Section 8.3 | Demo accounts | `backend/src/baseline.js` | `tests/http.test.js` | Implemented. Password `Nascon@26` for all five emails. |
+
+## Phase II (in progress)
+
+| ID | Requirement | Source | Tests | Status |
+| --- | --- | --- | --- | --- |
+| Section 5.2 | Phase II reset seeds | `backend/src/day2/baseline.js`, `backend/src/schema.sql` | `backend/test/day2-sign.test.js`, `backend/test/http.integration.test.js` | Implemented. Live `POST /audit/v1/reset` keeps the Day 1 body and seeds `player-beta-2`, `match-m1` (in progress, 1-0), three QR links, `guest_anon_tok_7721`, and an empty cart. |
+| Section 5.3 | `DAY2_SALT` HMAC | `backend/src/day2/sign.js`, `docker-compose.yml` | `backend/test/day2-sign.test.js` | Implemented for the Appendix A reference vectors. Salt is read from the environment. |
+| Section 5.4–5.9 | Stream, co-stream, QR, guest merge, moderation, metrics, erasure | none | none | **Not implemented.** |
