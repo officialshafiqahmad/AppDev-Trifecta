@@ -56,5 +56,17 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('costream_header')), findsOneWidget);
     });
+
+    testWidgets('QrScannerView renders successfully with viewfinder and resolve button', (tester) async {
+      final config = AppConfig.fromEnvironment();
+      await tester.pumpWidget(TrifectaApp(
+        config: config,
+        initialRoute: AppRoutes.qrScanner,
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('qr_scanner_header')), findsOneWidget);
+      expect(find.byKey(const ValueKey('qr-code-input')), findsOneWidget);
+      expect(find.byKey(const ValueKey('qr-resolve-btn')), findsOneWidget);
+    });
   });
 }
