@@ -26,7 +26,7 @@ class MainActivity : FlutterActivity() {
             setMethodCallHandler { call, result ->
                 when (call.method) {
                     "getInitialUri" -> {
-                        val uri = initialUri
+                        val uri = initialUri ?: intent?.dataString
                         initialUri = null
                         result.success(uri)
                     }

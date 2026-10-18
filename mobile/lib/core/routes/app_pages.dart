@@ -137,5 +137,19 @@ abstract final class AppPages {
       transition: Transition.downToUp,
       transitionDuration: _sizes.motionNormal,
     ),
+    GetPage<dynamic>(
+      name: 'nascon://entity/match-m1',
+      page: () => const MatchLiveView(),
+      binding: MatchLiveBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: _sizes.motionFast,
+    ),
+    GetPage<dynamic>(
+      name: 'nascon://stream/cs-session-101',
+      page: () => const CoStreamView(),
+      binding: CoStreamBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: _sizes.motionFast,
+    ),
   ];
 }
