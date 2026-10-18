@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-10-18T08:32:56.732Z",
+  "reset_status": 200,
+  "host_handoff": {
+    "status": 201,
+    "active_host": "player-alpha-2",
+    "handoff_occurred": true,
+    "participant_count": 3,
+    "chat_room_id": "chat-cs-hidden-1",
+    "pass": true
+  },
+  "qr_mutation": {
+    "end_status": 201,
+    "short_url_before": "http://localhost:8080/q/m1-live",
+    "short_url_after": "http://localhost:8080/q/m1-live",
+    "target_before": "/web/matches/match-m1/live",
+    "target_after": "/web/matches/match-m1/vod",
+    "signature_changed": true,
+    "pass": true
+  },
+  "moderation_race": {
+    "statuses": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+    ],
+    "kicked": [
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ],
+      [
+        "user-spammer"
+      ]
+    ],
+    "pass": true
+  },
+  "cart_replay": {
+    "first_status": 200,
+    "second_status": 200,
+    "first_items": 1,
+    "second_items": 1,
+    "pass": true
+  },
+  "pass": true
+}
