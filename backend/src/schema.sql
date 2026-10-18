@@ -127,3 +127,31 @@ CREATE TABLE IF NOT EXISTS user_carts (
   user_id TEXT PRIMARY KEY,
   items JSONB NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS stream_keys (
+  stream_key TEXT PRIMARY KEY,
+  player_id TEXT NOT NULL,
+  label TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS stream_keys_player_status ON stream_keys (player_id, status);
+
+CREATE TABLE IF NOT EXISTS costream_sessions (
+  session_id TEXT PRIMARY KEY,
+  request_hash TEXT NOT NULL,
+  response JSONB NOT NULL,
+  status TEXT NOT NULL,
+  active_host TEXT,
+  layout TEXT NOT NULL,
+  chat_room_id TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS qr_scan_buckets (
+  entity_id TEXT NOT NULL,
+  device_family TEXT NOT NULL,
+  bucket TIMESTAMPTZ NOT NULL,
+  scan_count INTEGER NOT NULL,
+  PRIMARY KEY (entity_id, device_family, bucket)
+);
