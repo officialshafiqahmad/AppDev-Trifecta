@@ -10,4 +10,6 @@ abstract class AppRoutes {
   static const scoringEntry = '/scoring-entry';
   static const syncStatus = '/sync-status';
   static const settings = '/settings';
+  static const matchLive = '/match-live';
+  static const coStream = '/co-stream';
 }
