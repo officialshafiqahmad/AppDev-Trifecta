@@ -8,6 +8,8 @@ import 'core/routes/app_pages.dart';
 import 'core/routes/app_routes.dart';
 import 'core/strings/app_strings.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/binding/auth_binding.dart';
+import 'features/auth/view/role_select_view.dart';
 import 'services/auth/auth_service_impl.dart';
 
 /// Application entry point with session restoration.
@@ -75,6 +77,11 @@ class TrifectaApp extends StatelessWidget {
         initialDeepLinkUri: initialDeepLinkUri,
       ),
       initialRoute: initialRoute,
+      unknownRoute: GetPage<dynamic>(
+        name: AppRoutes.roleSelect,
+        page: () => const RoleSelectView(),
+        binding: AuthBinding(),
+      ),
       getPages: AppPages.pages,
       builder: (context, child) {
         final media = MediaQuery.of(context);

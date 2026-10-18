@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../core/routes/app_routes.dart';
@@ -6,7 +7,7 @@ import '../../core/routes/app_routes.dart';
 abstract class DeepLinkService {
   String? get lastMatchId;
   String? get lastSessionId;
-  void handleUri(String uri, {bool isColdStart = false});
+  void handleUri(String uri);
 }
 
 class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
@@ -45,7 +46,9 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
   void onReady() {
     super.onReady();
     if (_initialUri != null && _initialUri.startsWith('nascon://')) {
-      handleUri(_initialUri, isColdStart: true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        handleUri(_initialUri);
+      });
     }
   }
 
@@ -60,7 +63,7 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
   }
 
   @override
-  void handleUri(String uri, {bool isColdStart = false}) {
+  void handleUri(String uri) {
     _parseAndStore(uri);
 
     if (uri.startsWith('nascon://entity/')) {
@@ -68,21 +71,13 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
       if (Get.currentRoute == AppRoutes.matchLive) {
         return;
       }
-      if (isColdStart) {
-        Get.offAllNamed(AppRoutes.matchLive, arguments: matchId);
-      } else {
-        Get.toNamed(AppRoutes.matchLive, arguments: matchId);
-      }
+      Get.toNamed(AppRoutes.matchLive, arguments: matchId);
     } else if (uri.startsWith('nascon://stream/')) {
       final sessionId = _lastSessionId ?? 'cs-session-101';
       if (Get.currentRoute == AppRoutes.coStream) {
         return;
       }
-      if (isColdStart) {
-        Get.offAllNamed(AppRoutes.coStream, arguments: sessionId);
-      } else {
-        Get.toNamed(AppRoutes.coStream, arguments: sessionId);
-      }
+      Get.toNamed(AppRoutes.coStream, arguments: sessionId);
     }
   }
 }
