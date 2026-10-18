@@ -9,6 +9,9 @@ const { getStandings } = require('./standings');
 const { checkout, getInventory } = require('./store');
 const { mountRbac } = require('./rbac');
 const { rateLimitApi } = require('./ratelimit');
+const { handleStreamKey } = require('./day2/stream-key');
+const { handleCostream } = require('./day2/costream');
+const { exportQr, resolveQr, resolveShortCode } = require('./day2/qr');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -175,6 +178,74 @@ function createApp(pool) {
         return;
       }
       res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/stream/key', async (req, res, next) => {
+    try {
+      const result = await handleStreamKey(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/costream/session', async (req, res, next) => {
+    try {
+      const result = await handleCostream(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/qr/:entity_id/export.:format', async (req, res, next) => {
+    try {
+      const result = await exportQr(pool, req.params.entity_id, req.params.format);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).set('Content-Type', result.contentType).send(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/qr/:entity_id', async (req, res, next) => {
+    try {
+      const result = await resolveQr(pool, req.params.entity_id, {
+        inspect: req.query.inspect === 'true',
+        userAgent: req.get('user-agent'),
+      });
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/q/:short_code', async (req, res, next) => {
+    try {
+      const result = await resolveShortCode(pool, req.params.short_code, req.get('user-agent'));
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(302).set('Location', result.location).end();
     } catch (error) {
       next(error);
     }
