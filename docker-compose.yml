@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     environment:
       DAY1_SALT: ${DAY1_SALT}
+      DAY2_SALT: ${DAY2_SALT}
       PORT: "8080"
       DATABASE_URL: postgres://nascon:nascon@db:5432/nascon
       REDIS_URL: redis://redis:6379
@@ -78,6 +79,7 @@ services:
     command: ["node", "src/worker.js"]
     environment:
       DAY1_SALT: ${DAY1_SALT}
+      DAY2_SALT: ${DAY2_SALT}
       QUEUE_URL: redis://redis:6379
       REDIS_URL: redis://redis:6379
       OBJECT_STORE_URL: http://object-store:9000

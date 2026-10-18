@@ -13,7 +13,8 @@ node --test --test-concurrency=1 \
   backend/test/scoring.unit.test.js \
   backend/test/standings.unit.test.js \
   backend/test/store.unit.test.js \
-  backend/test/rbac.unit.test.js
+  backend/test/rbac.unit.test.js \
+  backend/test/day2-sign.test.js
 
 if ! curl -sf http://127.0.0.1:8080/health >/dev/null; then
   echo "GET /health is not ready on port 8080." >&2
