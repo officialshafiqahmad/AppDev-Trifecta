@@ -25,6 +25,14 @@ void main() async {
   } catch (_) {}
 
   String initialRoute = AppPages.initial;
+  // Deep link overrides default role-select route on cold start
+  if (initialDeepLinkUri != null && initialDeepLinkUri.isNotEmpty) {
+    if (initialDeepLinkUri.startsWith('nascon://entity/')) {
+      initialRoute = AppRoutes.matchLive;
+    } else if (initialDeepLinkUri.startsWith('nascon://stream/')) {
+      initialRoute = AppRoutes.coStream;
+    }
+  }
   final authService = AuthServiceImpl();
   // Rule G7: Restore session from storage on cold start
   try {
