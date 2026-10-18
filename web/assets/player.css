@@ -1,0 +1,38 @@
+/* Trifecta Guest Web Player — plain CSS, no framework. WCAG AA: body text #1a1a1a on #ffffff (contrast > 12:1), touch targets >= 48px. */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1a1a; background: #ffffff; }
+header.topbar { background: #111111; color: #ffffff; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+header.topbar .brand { font-weight: 700; font-size: 18px; }
+header.topbar .live-tag { background: #b3001b; color: #ffffff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 4px; letter-spacing: 0.05em; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; display: block; }
+.player-wrap { position: relative; background: #000000; border-radius: 8px; overflow: hidden; }
+.player-wrap video { width: 100%; display: block; aspect-ratio: 16 / 9; background: #000000; }
+.waiting-state { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #ffffff; background: rgba(0,0,0,0.55); font-size: 16px; text-align: center; padding: 16px; }
+.score-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 2px solid #111111; border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+.score-banner .teams { font-size: 18px; font-weight: 600; }
+.score-banner .score { font-size: 28px; font-weight: 800; }
+.score-banner .minute { font-size: 14px; color: #333333; }
+section.card { border: 1px solid #c9c9c9; border-radius: 8px; padding: 16px; margin: 16px 0; }
+section.card h2 { margin: 0 0 12px; font-size: 18px; }
+.merch { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.merch .name { font-weight: 600; }
+.merch .price { color: #333333; }
+button { min-height: 48px; min-width: 48px; padding: 12px 20px; font-size: 16px; font-weight: 600; border-radius: 8px; border: 2px solid #111111; background: #111111; color: #ffffff; cursor: pointer; }
+button.secondary { background: #ffffff; color: #111111; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #005fcc; outline-offset: 2px; }
+.cart-line { font-size: 16px; margin-top: 8px; }
+.chat-list { list-style: none; margin: 0 0 12px; padding: 0; max-height: 260px; overflow-y: auto; }
+.chat-list li { padding: 8px 4px; border-bottom: 1px solid #e3e3e3; font-size: 15px; }
+.chat-list .sender { font-weight: 700; }
+.chat-form { display: flex; gap: 8px; }
+.chat-status-line { color: #b3001b; font-size: 14px; margin: 0 0 8px; }
+.chat-form input { flex: 1; min-height: 48px; font-size: 16px; padding: 8px 12px; border: 2px solid #555555; border-radius: 8px; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-box { background: #ffffff; border-radius: 8px; max-width: 420px; width: 100%; padding: 24px; }
+.modal-box h2 { margin-top: 0; }
+[hidden] { display: none !important; }
+.notice-state { border: 2px solid #111111; border-radius: 8px; padding: 24px; text-align: center; font-size: 18px; margin: 16px 0; }
+.participants { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.participant { border: 1px solid #c9c9c9; border-radius: 8px; padding: 12px; min-height: 96px; }
+.participant .pname { font-weight: 700; }
+.participant .host-badge { background: #111111; color: #ffffff; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
