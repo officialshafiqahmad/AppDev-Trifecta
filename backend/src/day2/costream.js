@@ -123,17 +123,18 @@ function evaluateCostream(request, knownPlayerIds) {
       },
     };
   }
-  if (!layoutFits(request.layout, request.participants.length)) {
+  const outcome = resolveHandoff(request);
+  if (!layoutFits(request.layout, outcome.participant_count)) {
     return {
       error: {
         status: 400,
         code: 'UNSUPPORTED_LAYOUT',
         message: 'Requested layout cannot fit the active participant count.',
-        details: { layout: request.layout, participant_count: request.participants.length },
+        details: { layout: request.layout, participant_count: outcome.participant_count },
       },
     };
   }
-  return { ok: true, outcome: resolveHandoff(request) };
+  return { ok: true, outcome };
 }
 
 function costreamHash(request) {
