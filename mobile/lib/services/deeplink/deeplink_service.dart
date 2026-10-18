@@ -6,11 +6,11 @@ import '../../core/routes/app_routes.dart';
 abstract class DeepLinkService {
   String? get lastMatchId;
   String? get lastSessionId;
-  void handleUri(String uri);
+  void handleUri(String uri, {bool isColdStart = false});
 }
 
 class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
-  DeepLinkServiceImpl({String? initialUri}) {
+  DeepLinkServiceImpl({String? initialUri}) : _initialUri = initialUri {
     if (initialUri != null && initialUri.isNotEmpty) {
       _parseAndStore(initialUri);
     }
@@ -18,6 +18,7 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
 
   static const MethodChannel _channel = MethodChannel('com.trifecta.app/deeplink');
 
+  final String? _initialUri;
   String? _lastMatchId;
   String? _lastSessionId;
 
@@ -40,6 +41,14 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
     });
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    if (_initialUri != null && _initialUri.startsWith('nascon://')) {
+      handleUri(_initialUri, isColdStart: true);
+    }
+  }
+
   void _parseAndStore(String uri) {
     if (uri.startsWith('nascon://entity/')) {
       final rest = uri.substring('nascon://entity/'.length);
@@ -51,7 +60,7 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
   }
 
   @override
-  void handleUri(String uri) {
+  void handleUri(String uri, {bool isColdStart = false}) {
     _parseAndStore(uri);
 
     if (uri.startsWith('nascon://entity/')) {
@@ -59,13 +68,21 @@ class DeepLinkServiceImpl extends GetxService implements DeepLinkService {
       if (Get.currentRoute == AppRoutes.matchLive) {
         return;
       }
-      Get.toNamed(AppRoutes.matchLive, arguments: matchId);
+      if (isColdStart) {
+        Get.offAllNamed(AppRoutes.matchLive, arguments: matchId);
+      } else {
+        Get.toNamed(AppRoutes.matchLive, arguments: matchId);
+      }
     } else if (uri.startsWith('nascon://stream/')) {
       final sessionId = _lastSessionId ?? 'cs-session-101';
       if (Get.currentRoute == AppRoutes.coStream) {
         return;
       }
-      Get.toNamed(AppRoutes.coStream, arguments: sessionId);
+      if (isColdStart) {
+        Get.offAllNamed(AppRoutes.coStream, arguments: sessionId);
+      } else {
+        Get.toNamed(AppRoutes.coStream, arguments: sessionId);
+      }
     }
   }
 }

@@ -21,6 +21,7 @@ class MatchLiveView extends GetView<MatchLiveController> {
     final textStyles = context.text;
 
     return AppScaffold(
+      showSyncIndicator: false,
       titleKey: null,
       titleWidget: Text(
         'Match Live',
