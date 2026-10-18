@@ -6,14 +6,19 @@ services:
       - "8080:8080"
     environment:
       DAY1_SALT: ${DAY1_SALT}
+      DAY2_SALT: ${DAY2_SALT}
       PORT: "8080"
       DATABASE_URL: postgres://nascon:nascon@db:5432/nascon
       REDIS_URL: redis://redis:6379
+      QUEUE_URL: redis://queue:6379
+      OBJECT_STORE_URL: http://object-store:9000
       JWT_SECRET: ${JWT_SECRET:-replace-for-local-development}
     depends_on:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      queue:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
@@ -44,5 +49,112 @@ services:
       timeout: 5s
       retries: 30
 
+  queue:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  object-store:
+    build:
+      context: ./backend
+    command: ["node", "src/object-store.js"]
+    environment:
+      PORT: "9000"
+      OBJECT_STORE_DIR: /data
+    volumes:
+      - objectdata:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  worker:
+    build:
+      context: ./backend
+    command: ["node", "src/worker.js"]
+    environment:
+      DAY1_SALT: ${DAY1_SALT}
+      DAY2_SALT: ${DAY2_SALT}
+      QUEUE_URL: redis://redis:6379
+      REDIS_URL: redis://redis:6379
+      OBJECT_STORE_URL: http://object-store:9000
+    depends_on:
+      redis:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+
+  mediamtx:
+    image: bluenviron/mediamtx:1.11.3
+    ports:
+      - "1935:1935"
+      - "8888:8888"
+      - "8889:8889"
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: nascon
+      MINIO_ROOT_PASSWORD: nascon-day2-local
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+
+  selenium-hub:
+    image: selenium/hub:4.25.0
+    container_name: nascon-selenium-hub
+    ports:
+      - "4444:4444"
+      - "4442:4442"
+      - "4443:4443"
+
+  node-chrome-1:
+    image: selenium/node-chrome:4.25.0
+    shm_size: "1gb"
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_START_VNC=false
+
+  node-chrome-2:
+    image: selenium/node-chrome:4.25.0
+    shm_size: "1gb"
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_START_VNC=false
+
+  node-firefox:
+    image: selenium/node-firefox:4.25.0
+    shm_size: "1gb"
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_START_VNC=false
+
 volumes:
   pgdata:
+  objectdata:
+  miniodata:

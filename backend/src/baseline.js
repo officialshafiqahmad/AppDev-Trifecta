@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { validateSport } = require('./sports');
+const { seedPhase2 } = require('./day2/baseline');
 
 const DEFAULT_STOCK = {
   'var-jersey-001-M': 1,
@@ -180,6 +181,9 @@ async function applyReset(pool, { seed, stock }) {
     await client.query('BEGIN');
     await client.query(`
       TRUNCATE TABLE
+        notification_dlq, guest_merges, qr_scan_buckets,
+        user_carts, guest_sessions, qr_links,
+        costream_sessions, stream_keys,
         domain_events, orders,
         match_events, matches,
         users, players, clubs, leagues,
@@ -257,6 +261,8 @@ async function applyReset(pool, { seed, stock }) {
         ],
       );
     }
+
+    await seedPhase2(client);
 
     await client.query(
       `INSERT INTO meta (id, lots_seed, baseline_ready) VALUES (1, $1, TRUE)`,

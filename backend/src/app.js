@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const { sendError } = require('./errors');
 const { validateSport } = require('./sports');
@@ -5,7 +7,17 @@ const { validateReset, applyReset } = require('./baseline');
 const { databaseReady } = require('./db');
 const { validateLeague, createLeague } = require('./leagues');
 const { appendEvent, getScore } = require('./scoring');
+const { getStandings } = require('./standings');
 const { checkout, getInventory } = require('./store');
+const { mountRbac } = require('./rbac');
+const { rateLimitApi } = require('./ratelimit');
+const { handleStreamKey } = require('./day2/stream-key');
+const { handleCostream } = require('./day2/costream');
+const { exportQr, resolveQr, resolveShortCode } = require('./day2/qr');
+const { guestWriteBlock } = require('./day2/guest');
+const { handleCartMerge } = require('./day2/cart-merge');
+const { handleModeration } = require('./day2/moderation');
+const { renderMetrics } = require('./day2/metrics');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -22,6 +34,27 @@ function createApp(pool) {
   });
 
   app.use(express.json({ limit: MAX_BODY }));
+  mountRbac(app, pool);
+
+  app.use((req, res, next) => {
+    const blocked = guestWriteBlock(req);
+    if (!blocked) {
+      next();
+      return;
+    }
+    sendError(res, 403, 'GUEST_WRITE_FORBIDDEN', 'Anonymous guest tokens cannot perform write mutations.', {
+      guest_token: blocked.token,
+    });
+  });
+
+  const webRoot = process.env.WEB_ROOT || path.resolve(__dirname, '../../web');
+  if (fs.existsSync(webRoot)) {
+    app.use('/web', express.static(webRoot));
+  }
+
+  app.get('/api/v1/ping', rateLimitApi(), (req, res) => {
+    res.status(200).json({ pong: true });
+  });
 
   app.get('/health', async (req, res, next) => {
     try {
@@ -146,6 +179,19 @@ function createApp(pool) {
     }
   });
 
+  app.get('/audit/v1/standings/:league_id', async (req, res, next) => {
+    try {
+      const result = await getStandings(pool, req.params.league_id);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.get('/audit/v1/score/:match_id', async (req, res, next) => {
     try {
       const result = await getScore(pool, req.params.match_id);
@@ -154,6 +200,111 @@ function createApp(pool) {
         return;
       }
       res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/stream/key', async (req, res, next) => {
+    try {
+      const result = await handleStreamKey(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/costream/session', async (req, res, next) => {
+    try {
+      const result = await handleCostream(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/qr/:entity_id/export.:format', async (req, res, next) => {
+    try {
+      const result = await exportQr(pool, req.params.entity_id, req.params.format);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).set('Content-Type', result.contentType).send(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/audit/v1/qr/:entity_id', async (req, res, next) => {
+    try {
+      const result = await resolveQr(pool, req.params.entity_id, {
+        inspect: req.query.inspect === 'true',
+        userAgent: req.get('user-agent'),
+      });
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/guest/cart-merge', async (req, res, next) => {
+    try {
+      const result = await handleCartMerge(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(result.status).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/audit/v1/moderation/test', async (req, res, next) => {
+    try {
+      const result = await handleModeration(pool, req.body);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/metrics', async (req, res, next) => {
+    try {
+      const body = await renderMetrics(pool);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain; version=0.0.4');
+      res.end(body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/q/:short_code', async (req, res, next) => {
+    try {
+      const result = await resolveShortCode(pool, req.params.short_code, req.get('user-agent'));
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(302).set('Location', result.location).end();
     } catch (error) {
       next(error);
     }

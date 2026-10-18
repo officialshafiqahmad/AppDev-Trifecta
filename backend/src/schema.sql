@@ -107,3 +107,64 @@ CREATE TABLE IF NOT EXISTS domain_events (
 ALTER TABLE leagues ALTER COLUMN tenant_id DROP NOT NULL;
 ALTER TABLE leagues ADD COLUMN IF NOT EXISTS sport_id TEXT;
 ALTER TABLE leagues ADD COLUMN IF NOT EXISTS config JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+CREATE TABLE IF NOT EXISTS qr_links (
+  entity_id TEXT PRIMARY KEY,
+  entity_type TEXT NOT NULL,
+  short_code TEXT NOT NULL UNIQUE,
+  short_url TEXT NOT NULL,
+  scan_count INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS guest_sessions (
+  guest_token TEXT PRIMARY KEY,
+  status TEXT NOT NULL,
+  merged BOOLEAN NOT NULL DEFAULT FALSE,
+  role TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_carts (
+  user_id TEXT PRIMARY KEY,
+  items JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS stream_keys (
+  stream_key TEXT PRIMARY KEY,
+  player_id TEXT NOT NULL,
+  label TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS stream_keys_player_status ON stream_keys (player_id, status);
+
+CREATE TABLE IF NOT EXISTS costream_sessions (
+  session_id TEXT PRIMARY KEY,
+  request_hash TEXT NOT NULL,
+  response JSONB NOT NULL,
+  status TEXT NOT NULL,
+  active_host TEXT,
+  layout TEXT NOT NULL,
+  chat_room_id TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS guest_merges (
+  guest_token TEXT PRIMARY KEY,
+  registered_user_id TEXT NOT NULL,
+  cart_hash TEXT NOT NULL,
+  response JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS notification_dlq (
+  id BIGSERIAL PRIMARY KEY,
+  chat_room_id TEXT NOT NULL,
+  payload JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS qr_scan_buckets (
+  entity_id TEXT NOT NULL,
+  device_family TEXT NOT NULL,
+  bucket TIMESTAMPTZ NOT NULL,
+  scan_count INTEGER NOT NULL,
+  PRIMARY KEY (entity_id, device_family, bucket)
+);
