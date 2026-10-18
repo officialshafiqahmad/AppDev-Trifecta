@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trifecta — Co-Stream (Guest)</title>
+<link rel="stylesheet" href="/web/assets/player.css">
+</head>
+<body data-match-id="match-m1" data-session-id="cs-session-101" data-state="in_progress">
+<header class="topbar">
+  <span class="brand">Trifecta</span>
+  <span class="live-tag">CO-STREAM</span>
+  <span>Guest viewing — no account needed</span>
+</header>
+<main>
+  <div class="player-wrap" data-testid="guest-video-player">
+    <video controls playsinline preload="none" aria-label="Co-stream composite video player" src="http://localhost:8888/costream/cs-session-101/index.m3u8"></video>
+    <div class="waiting-state">Waiting for stream signal</div>
+  </div>
+
+  <div class="score-banner" data-testid="live-score-banner" aria-live="polite">
+    <span class="teams">Alpha FC vs Alpha Kings</span>
+    <span class="score" data-testid="live-score-value">1 - 0</span>
+    <span class="minute">Session cs-session-101 · grid_4</span>
+  </div>
+
+  <section class="card" aria-label="Participants">
+    <h2>On stream</h2>
+    <div class="participants">
+      <div class="participant"><span class="pname">Player Alpha 1</span> <span class="host-badge">Host</span><div>Alpha FC</div></div>
+      <div class="participant"><span class="pname">Player Alpha 2</span><div>Alpha FC</div></div>
+      <div class="participant"><span class="pname">Player Beta 1</span><div>Beta United</div></div>
+      <div class="participant"><span class="pname">Player Beta 2</span><div>Beta United</div></div>
+    </div>
+  </section>
+
+  <section class="card" data-testid="pinned-merch-card" aria-label="Pinned merchandise">
+    <h2>Pinned merchandise</h2>
+    <div class="merch">
+      <div>
+        <div class="name">Alpha FC Home Jersey — Size L</div>
+        <div class="price">PKR 4,500.00</div>
+      </div>
+      <button type="button" data-testid="add-to-guest-cart-btn" aria-label="Add jersey size L to guest cart">Add to cart</button>
+    </div>
+    <p class="cart-line">Guest cart: <span data-testid="guest-cart-count">0</span> item(s)</p>
+    <button type="button" class="secondary" data-testid="guest-checkout-btn">Proceed to Checkout</button>
+  </section>
+
+  <section class="card" aria-label="Session chat">
+    <h2>Session chat</h2>
+    <ul class="chat-list" data-testid="chat-message-list" aria-label="Chat messages">
+      <li><span class="sender">Host:</span> Welcome to the co-stream.</li>
+    </ul>
+    <div class="chat-form">
+      <input type="text" data-testid="chat-input-field" aria-label="Type a chat message" placeholder="Type a message">
+      <button type="button" data-testid="chat-send-btn" aria-label="Send chat message">Send</button>
+    </div>
+  </section>
+</main>
+
+<div class="modal-backdrop" data-testid="progressive-auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+  <div class="modal-box">
+    <h2 id="auth-modal-title">Sign in to continue</h2>
+    <p>Guests can watch and stage a cart. To send chat messages or check out, sign in or create an account. Your guest cart items are kept.</p>
+    <button type="button" data-close-modal>Sign in</button>
+    <button type="button" class="secondary" data-close-modal>Keep watching</button>
+  </div>
+</div>
+
+<script src="/web/assets/player.js"></script>
+</body>
+</html>

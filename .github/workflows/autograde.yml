@@ -1,0 +1,60 @@
+name: autograde
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  phase2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DAY1_SALT: ci-day1-salt-value
+      DAY2_SALT: ci-day2-salt-value
+      JWT_SECRET: ci-jwt-secret-value
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start Phase I and Phase II stack
+        run: docker compose up -d --build
+
+      - name: Wait for API health
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS http://localhost:8080/health | grep -q '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
+
+      - name: Backend contract probes
+        run: |
+          curl -fsS -X POST http://localhost:8080/audit/v1/reset \
+            -H 'Content-Type: application/json' -d '{}'
+          curl -fsS http://localhost:8080/audit/v1/qr/match-m1?inspect=true
+          curl -fsS http://localhost:8080/metrics
+          curl -fsS http://localhost:8080/web/matches/match-m1/live | grep -q 'data-testid="guest-video-player"'
+
+      - name: Selenium Grid node verification
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request
+          last = None
+          for _ in range(40):
+              try:
+                  with urllib.request.urlopen("http://localhost:4444/status", timeout=5) as res:
+                      last = json.load(res)
+                  value = last.get("value", {})
+                  if value.get("ready") is True and len(value.get("nodes", [])) >= 3:
+                      raise SystemExit(0)
+              except Exception as exc:
+                  last = str(exc)
+              time.sleep(3)
+          raise SystemExit(f"grid not ready: {last}")
+          PY
+
+      - name: k6 smoke
+        run: |
+          docker run --rm --network host -v "$PWD:/scripts" grafana/k6:0.54.0 \
+            run --summary-export=/scripts/tests/reports/k6-summary.json /scripts/tests/k6_load.js

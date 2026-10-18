@@ -18,6 +18,8 @@ const { guestWriteBlock } = require('./day2/guest');
 const { handleCartMerge } = require('./day2/cart-merge');
 const { handleModeration } = require('./day2/moderation');
 const { renderMetrics } = require('./day2/metrics');
+const { eraseUser } = require('./day2/privacy');
+const { handleGuestPage } = require('./day2/web');
 
 const MAX_BODY = 1024 * 1024;
 
@@ -48,6 +50,37 @@ function createApp(pool) {
   });
 
   const webRoot = process.env.WEB_ROOT || path.resolve(__dirname, '../../web');
+  app.get('/web/matches/:matchId/live', (req, res, next) => {
+    handleGuestPage(pool, res, {
+      title: `Live ${req.params.matchId}`,
+      matchId: req.params.matchId,
+      playbackUrl: 'http://localhost:8888/live/match-m1/index.m3u8',
+    }).catch(next);
+  });
+  app.get('/web/matches/:matchId/preview', (req, res, next) => {
+    handleGuestPage(pool, res, { title: `Preview ${req.params.matchId}`, matchId: req.params.matchId }).catch(next);
+  });
+  app.get('/web/matches/:matchId/vod', (req, res, next) => {
+    handleGuestPage(pool, res, { title: `VOD ${req.params.matchId}`, matchId: req.params.matchId }).catch(next);
+  });
+  app.get('/web/matches/:matchId/notice', (req, res, next) => {
+    handleGuestPage(pool, res, {
+      title: `Notice ${req.params.matchId} ${req.query.state || ''}`.trim(),
+      matchId: req.params.matchId,
+    }).catch(next);
+  });
+  app.get('/web/players/:entityId', (req, res, next) => {
+    handleGuestPage(pool, res, { title: `Player ${req.params.entityId}` }).catch(next);
+  });
+  app.get('/web/clubs/:entityId', (req, res, next) => {
+    handleGuestPage(pool, res, { title: `Club ${req.params.entityId}` }).catch(next);
+  });
+  app.get('/web/costream/:sessionId', (req, res, next) => {
+    handleGuestPage(pool, res, {
+      title: `Co-stream ${req.params.sessionId}`,
+      playbackUrl: `http://localhost:8888/costream/${req.params.sessionId}/index.m3u8`,
+    }).catch(next);
+  });
   if (fs.existsSync(webRoot)) {
     app.use('/web', express.static(webRoot));
   }
@@ -292,6 +325,19 @@ function createApp(pool) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/plain; version=0.0.4');
       res.end(body);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.delete('/audit/v1/privacy/user/:user_id', async (req, res, next) => {
+    try {
+      const result = await eraseUser(pool, req.params.user_id);
+      if (result.error) {
+        sendError(res, result.error.status, result.error.code, result.error.message, result.error.details);
+        return;
+      }
+      res.status(200).json(result.body);
     } catch (error) {
       next(error);
     }

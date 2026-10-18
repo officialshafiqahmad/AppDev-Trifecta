@@ -168,6 +168,11 @@ async function seedPhase2(client) {
     `INSERT INTO user_carts (user_id, items) VALUES ($1, '[]'::jsonb)`,
     [PHASE2_CART_USER],
   );
+
+  await client.query(
+    `INSERT INTO viewer_tokens (token, user_id, player_id, status)
+     VALUES ('viewer_tok_player_alpha_1', 'user-player', 'player-alpha-1', 'active')`,
+  );
 }
 
 module.exports = {

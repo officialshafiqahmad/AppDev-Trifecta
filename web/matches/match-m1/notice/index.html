@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trifecta — Match Notice (Guest)</title>
+<link rel="stylesheet" href="/web/assets/player.css">
+</head>
+<body data-match-id="match-m1" data-state="notice">
+<header class="topbar"><span class="brand">Trifecta</span><span>Match notice</span></header>
+<main>
+  <div class="notice-state" id="notice-text">This match is not being played right now. Please check back for a new time.</div>
+  <div class="score-banner" data-testid="live-score-banner">
+    <span class="teams">Alpha FC vs Alpha Kings</span>
+    <span class="score" data-testid="live-score-value">–</span>
+    <span class="minute">Football · League Alpha 1</span>
+  </div>
+</main>
+<script>
+  // Reads ?state=postponed|cancelled|abandoned and names it plainly.
+  (function () {
+    var state = new URLSearchParams(window.location.search).get('state') || '';
+    var el = document.getElementById('notice-text');
+    var map = {
+      postponed: 'This match has been postponed. A new time will be announced here.',
+      cancelled: 'This match has been cancelled.',
+      abandoned: 'This match was abandoned and will not be completed.'
+    };
+    if (map[state]) el.textContent = map[state];
+  })();
+</script>
+</body>
+</html>

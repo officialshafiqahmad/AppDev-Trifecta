@@ -181,7 +181,7 @@ async function applyReset(pool, { seed, stock }) {
     await client.query('BEGIN');
     await client.query(`
       TRUNCATE TABLE
-        notification_dlq, guest_merges, qr_scan_buckets,
+        notification_dlq, guest_merges, qr_scan_buckets, viewer_tokens,
         user_carts, guest_sessions, qr_links,
         costream_sessions, stream_keys,
         domain_events, orders,

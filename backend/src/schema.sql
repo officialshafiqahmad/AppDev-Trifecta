@@ -161,6 +161,13 @@ CREATE TABLE IF NOT EXISTS notification_dlq (
   payload JSONB NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS viewer_tokens (
+  token TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  player_id TEXT,
+  status TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS qr_scan_buckets (
   entity_id TEXT NOT NULL,
   device_family TEXT NOT NULL,

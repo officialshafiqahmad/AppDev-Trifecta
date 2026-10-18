@@ -140,4 +140,33 @@ describe('Phase II guest, moderation, and metrics HTTP', { skip: process.env.SKI
     assert.match(metrics.text, /^nascon_dlq_depth 2$/m);
     assert.match(metrics.text, /^nascon_qr_scans_total \d+$/m);
   });
+
+  it('anonymizes a player and wipes linked viewer tokens', async () => {
+    const erased = await request('DELETE', '/audit/v1/privacy/user/player-alpha-1');
+    assert.equal(erased.status, 200);
+    assert.deepEqual(erased.json, {
+      user_id: 'player-alpha-1',
+      status: 'anonymized',
+      pii_retained: false,
+      tokens_wiped: true,
+    });
+
+    const again = await request('DELETE', '/audit/v1/privacy/user/player-alpha-1');
+    assert.equal(again.status, 200);
+    assert.equal(again.json.status, 'anonymized');
+
+    const missing = await request('DELETE', '/audit/v1/privacy/user/player-missing');
+    assert.equal(missing.status, 404);
+    assert.equal(missing.json.error.code, 'PLAYER_NOT_FOUND');
+  });
+
+  it('serves the guest live page with the required selectors', async () => {
+    const page = await request('GET', '/web/matches/match-m1/live');
+    assert.equal(page.status, 200);
+    assert.match(page.type, /text\/html/);
+    assert.match(page.text, /data-testid="guest-video-player"/);
+    assert.match(page.text, /data-testid="live-score-banner"/);
+    assert.match(page.text, /1 - 0/);
+    assert.match(page.text, /data-testid="progressive-auth-modal"[^>]*hidden/);
+  });
 });
