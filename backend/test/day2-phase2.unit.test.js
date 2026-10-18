@@ -142,6 +142,36 @@ describe('co-stream handoff', () => {
     assert.equal(layout.error.status, 400);
     assert.equal(layout.error.code, 'UNSUPPORTED_LAYOUT');
 
+    const droppedSolo = evaluateCostream({
+      ...request,
+      host_player_id: 'player-alpha-1',
+      participants: ['player-alpha-1', 'player-alpha-2'],
+      layout: 'solo',
+      simulate_host_drop: true,
+    }, PLAYERS);
+    assert.equal(droppedSolo.ok, true);
+    assert.equal(droppedSolo.outcome.active_host, 'player-alpha-2');
+    assert.equal(droppedSolo.outcome.participant_count, 1);
+    assert.equal(droppedSolo.outcome.handoff_occurred, true);
+
+    const droppedGrid = evaluateCostream({
+      ...request,
+      host_player_id: 'player-alpha-1',
+      participants: ['player-alpha-1', 'player-alpha-2', 'player-beta-1'],
+      layout: 'grid_2',
+      simulate_host_drop: true,
+    }, PLAYERS);
+    assert.equal(droppedGrid.ok, true);
+    assert.equal(droppedGrid.outcome.participant_count, 2);
+
+    const stillWide = evaluateCostream({
+      ...request,
+      layout: 'grid_2',
+      simulate_host_drop: true,
+    }, PLAYERS);
+    assert.equal(stillWide.error.code, 'UNSUPPORTED_LAYOUT');
+    assert.equal(stillWide.error.details.participant_count, 3);
+
     const outsider = evaluateCostream({
       ...request,
       host_player_id: 'player-extra',
