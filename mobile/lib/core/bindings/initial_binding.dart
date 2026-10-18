@@ -22,20 +22,25 @@ import '../../services/storage/storage_service.dart';
 import '../../services/storage/storage_service_impl.dart';
 import '../../services/store/store_service.dart';
 import '../../services/store/store_service_mock.dart';
+import '../../services/deeplink/deeplink_service.dart';
 import '../../services/sync/sync_service.dart';
 import '../../services/sync/sync_service_mock.dart';
 
 /// Registers all global service singletons permanently.
 /// Controllers only ever depend on these interfaces via Get.find().
 class InitialBinding extends Bindings {
-  InitialBinding(this.config, {this.preloadedAuth});
+  InitialBinding(this.config, {this.preloadedAuth, this.initialDeepLinkUri});
 
   final AppConfig config;
   final AuthService? preloadedAuth;
+  final String? initialDeepLinkUri;
 
   @override
   void dependencies() {
     Get.put<AppConfig>(config, permanent: true);
+
+    final deepLink = DeepLinkServiceImpl(initialUri: initialDeepLinkUri);
+    Get.put<DeepLinkService>(deepLink, permanent: true);
 
     final storage = StorageServiceImpl();
     Get.put<StorageService>(storage, permanent: true);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'config/app_config.dart';
@@ -14,23 +15,40 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AppConfig.fromEnvironment();
 
-  // Rule G7: Restore session from storage on cold start
-  final authService = AuthServiceImpl();
+  // Deep Link Handling (nascon://entity/match-m1, nascon://stream/cs-session-101)
+  String? initialDeepLinkUri;
   String initialRoute = AppPages.initial;
   try {
-    final isAuthRes = await authService.isAuthenticated();
-    if (isAuthRes.isSuccess && isAuthRes.dataOrNull == true) {
-      final userRes = await authService.getCurrentUser();
-      if (userRes.isSuccess && userRes.dataOrNull != null) {
-        initialRoute = AppRoutes.main;
+    const channel = MethodChannel('com.trifecta.app/deeplink');
+    initialDeepLinkUri = await channel.invokeMethod<String>('getInitialUri');
+    if (initialDeepLinkUri != null && initialDeepLinkUri.startsWith('nascon://')) {
+      if (initialDeepLinkUri.startsWith('nascon://entity/')) {
+        initialRoute = AppRoutes.matchLive;
+      } else if (initialDeepLinkUri.startsWith('nascon://stream/')) {
+        initialRoute = AppRoutes.coStream;
       }
     }
   } catch (_) {}
+
+  final authService = AuthServiceImpl();
+  if (initialDeepLinkUri == null || !initialDeepLinkUri.startsWith('nascon://')) {
+    // Rule G7: Restore session from storage on cold start
+    try {
+      final isAuthRes = await authService.isAuthenticated();
+      if (isAuthRes.isSuccess && isAuthRes.dataOrNull == true) {
+        final userRes = await authService.getCurrentUser();
+        if (userRes.isSuccess && userRes.dataOrNull != null) {
+          initialRoute = AppRoutes.main;
+        }
+      }
+    } catch (_) {}
+  }
 
   runApp(TrifectaApp(
     config: config,
     initialRoute: initialRoute,
     preloadedAuth: authService,
+    initialDeepLinkUri: initialDeepLinkUri,
   ));
 }
 
@@ -41,11 +59,13 @@ class TrifectaApp extends StatelessWidget {
     required this.config,
     this.initialRoute = AppPages.initial,
     this.preloadedAuth,
+    this.initialDeepLinkUri,
   });
 
   final AppConfig config;
   final String initialRoute;
   final AuthServiceImpl? preloadedAuth;
+  final String? initialDeepLinkUri;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +78,11 @@ class TrifectaApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      initialBinding: InitialBinding(config, preloadedAuth: preloadedAuth),
+      initialBinding: InitialBinding(
+        config,
+        preloadedAuth: preloadedAuth,
+        initialDeepLinkUri: initialDeepLinkUri,
+      ),
       initialRoute: initialRoute,
       getPages: AppPages.pages,
       builder: (context, child) {

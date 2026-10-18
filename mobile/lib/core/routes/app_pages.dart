@@ -9,6 +9,10 @@ import '../../features/main_nav/binding/main_nav_binding.dart';
 import '../../features/main_nav/view/main_nav_view.dart';
 import '../../features/match_detail/binding/match_detail_binding.dart';
 import '../../features/match_detail/view/match_detail_view.dart';
+import '../../features/match_live/binding/match_live_binding.dart';
+import '../../features/match_live/view/match_live_view.dart';
+import '../../features/co_stream/binding/co_stream_binding.dart';
+import '../../features/co_stream/view/co_stream_view.dart';
 import '../../features/roster_manage/binding/roster_manage_binding.dart';
 import '../../features/roster_manage/view/roster_manage_view.dart';
 import '../../features/scoring_entry/binding/scoring_entry_binding.dart';
@@ -109,6 +113,20 @@ abstract final class AppPages {
       binding: SettingsBinding(),
       transition: Transition.rightToLeft,
       transitionDuration: _sizes.motionNormal,
+    ),
+    GetPage<dynamic>(
+      name: AppRoutes.matchLive,
+      page: () => const MatchLiveView(),
+      binding: MatchLiveBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: _sizes.motionFast,
+    ),
+    GetPage<dynamic>(
+      name: AppRoutes.coStream,
+      page: () => const CoStreamView(),
+      binding: CoStreamBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: _sizes.motionFast,
     ),
   ];
 }
