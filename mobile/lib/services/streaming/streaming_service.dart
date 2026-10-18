@@ -101,6 +101,20 @@ class StreamingServiceMock implements StreamingService {
     String action = 'generate',
     String label = 'default',
   }) async {
+    if (label == 'match-m1') {
+      return Success({
+        'player_id': playerId,
+        'label': label,
+        'stream_key': 'sk_live_m1',
+        'status': 'active',
+        'ingest_endpoints': {
+          'rtmp': 'rtmp://172.15.57.248:1935/live/sk_live_m1',
+          'webrtc': 'http://172.15.57.248:8889/live/sk_live_m1/whip',
+        },
+        'playback_url': 'http://172.15.57.248:8080/live/sk_live_m1/index.m3u8',
+      });
+    }
+    // Default mock fallback
     return Success({
       'player_id': playerId,
       'label': label,
