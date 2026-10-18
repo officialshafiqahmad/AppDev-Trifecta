@@ -17,32 +17,23 @@ void main() async {
 
   // Deep Link Handling (nascon://entity/match-m1, nascon://stream/cs-session-101)
   String? initialDeepLinkUri;
-  String initialRoute = AppPages.initial;
   try {
     const channel = MethodChannel('com.trifecta.app/deeplink');
     initialDeepLinkUri = await channel.invokeMethod<String>('getInitialUri');
-    if (initialDeepLinkUri != null && initialDeepLinkUri.startsWith('nascon://')) {
-      if (initialDeepLinkUri.startsWith('nascon://entity/')) {
-        initialRoute = AppRoutes.matchLive;
-      } else if (initialDeepLinkUri.startsWith('nascon://stream/')) {
-        initialRoute = AppRoutes.coStream;
+  } catch (_) {}
+
+  String initialRoute = AppPages.initial;
+  final authService = AuthServiceImpl();
+  // Rule G7: Restore session from storage on cold start
+  try {
+    final isAuthRes = await authService.isAuthenticated();
+    if (isAuthRes.isSuccess && isAuthRes.dataOrNull == true) {
+      final userRes = await authService.getCurrentUser();
+      if (userRes.isSuccess && userRes.dataOrNull != null) {
+        initialRoute = AppRoutes.main;
       }
     }
   } catch (_) {}
-
-  final authService = AuthServiceImpl();
-  if (initialDeepLinkUri == null || !initialDeepLinkUri.startsWith('nascon://')) {
-    // Rule G7: Restore session from storage on cold start
-    try {
-      final isAuthRes = await authService.isAuthenticated();
-      if (isAuthRes.isSuccess && isAuthRes.dataOrNull == true) {
-        final userRes = await authService.getCurrentUser();
-        if (userRes.isSuccess && userRes.dataOrNull != null) {
-          initialRoute = AppRoutes.main;
-        }
-      }
-    } catch (_) {}
-  }
 
   runApp(TrifectaApp(
     config: config,

@@ -31,6 +31,11 @@ class MatchLiveController extends GetxController {
         matchId.value = initialId;
       }
     }
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
     _loadScore();
   }
 
