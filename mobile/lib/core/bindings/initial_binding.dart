@@ -23,6 +23,7 @@ import '../../services/storage/storage_service_impl.dart';
 import '../../services/store/store_service.dart';
 import '../../services/store/store_service_mock.dart';
 import '../../services/deeplink/deeplink_service.dart';
+import '../../services/streaming/streaming_service.dart';
 import '../../services/sync/sync_service.dart';
 import '../../services/sync/sync_service_mock.dart';
 
@@ -53,6 +54,11 @@ class InitialBinding extends Bindings {
 
     final api = ApiServiceImpl(settingsService: settings);
     Get.put<ApiService>(api, permanent: true);
+
+    final streaming = config.isRealApiEnabled('streaming')
+        ? StreamingServiceImpl(apiService: api)
+        : StreamingServiceMock();
+    Get.put<StreamingService>(streaming, permanent: true);
 
     final sync = SyncServiceMock(cacheService: cache, settingsService: settings);
     Get.put<SyncService>(sync, permanent: true);

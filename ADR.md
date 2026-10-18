@@ -23,3 +23,12 @@ Roles are seeded users. Authorization is a reusable `can(actor, action, resource
 ## ADR-6 Supporting queue, worker, and object store
 
 Section 1.3 requires cache, queue, object store, and workers in Compose. Cache and queue are official `redis:7-alpine` images already used by the API. Object store and worker reuse the same backend image (`node:20-bookworm-slim`) so the grader does not pull an extra vendor image. The worker drains `trifecta:order-events` and writes JSON objects; API health does not depend on worker liveness beyond Compose startup of the object store.
+
+## ADR-7 Offline-first sync queue with replay idempotency
+
+Field operators enter scores, disciplinary actions, and roster adjustments in unpredictable connectivity environments. Client writes are immediately enqueued in a durable local sync queue with monotonic client sequence numbers and deterministic idempotency keys (`action_id`). An always-visible `SyncIndicator` reflects connectivity and pending queue depth. When connectivity is restored, the queue replays operations in sequence against `/api/v1/*` with exponential backoff and compensation handling on rejection.
+
+## ADR-8 Contract-first integration behind useRealApi feature flags
+
+Day 2 streaming, co-stream sessions, and guest web features require progressive backend integration without disrupting Phase I stability. All network services implement abstract interfaces with two implementations: a hermetic in-memory mock and an HTTP/SSE real API client. Service instantiation is governed by `AppConfig.useRealApi[serviceKey]` toggles injected via `--dart-define` or runtime settings. If live backend endpoints or media hosts are unreachable, the UI gracefully retains honest degraded states (e.g., "Waiting for stream signal") rather than crashing or displaying fabricated live indicators.
+

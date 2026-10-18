@@ -13,6 +13,8 @@ import '../../features/match_live/binding/match_live_binding.dart';
 import '../../features/match_live/view/match_live_view.dart';
 import '../../features/co_stream/binding/co_stream_binding.dart';
 import '../../features/co_stream/view/co_stream_view.dart';
+import '../../features/qr_scanner/binding/qr_scanner_binding.dart';
+import '../../features/qr_scanner/view/qr_scanner_view.dart';
 import '../../features/roster_manage/binding/roster_manage_binding.dart';
 import '../../features/roster_manage/view/roster_manage_view.dart';
 import '../../features/scoring_entry/binding/scoring_entry_binding.dart';
@@ -127,6 +129,13 @@ abstract final class AppPages {
       binding: CoStreamBinding(),
       transition: Transition.fadeIn,
       transitionDuration: _sizes.motionFast,
+    ),
+    GetPage<dynamic>(
+      name: AppRoutes.qrScanner,
+      page: () => const QrScannerView(),
+      binding: QrScannerBinding(),
+      transition: Transition.downToUp,
+      transitionDuration: _sizes.motionNormal,
     ),
   ];
 }
